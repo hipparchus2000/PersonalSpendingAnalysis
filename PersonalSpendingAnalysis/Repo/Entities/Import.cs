@@ -8,6 +8,11 @@ namespace PersonalSpendingAnalysis.Repo.Entities
 {
     public class Import
     {
+        public Import()
+        {
+            Id = Guid.NewGuid();
+        }
+
         public Guid Id { get; set; }
         public string Filename { get; set; }
         public DateTime importDate { get; set; }

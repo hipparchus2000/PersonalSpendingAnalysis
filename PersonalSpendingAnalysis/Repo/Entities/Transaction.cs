@@ -8,11 +8,18 @@ namespace PersonalSpendingAnalysis.Repo.Entities
 {
     public class Transaction
     {
+        public Transaction()
+        {
+            Id = Guid.NewGuid();
+        }
+
         public Guid Id { get; set; }
         public decimal amount { get; set; }
         public DateTime transactionDate { get; set; }
         public string Notes { get; set; }
-        public Category Category { get; set; }
-
+        public Guid? CategoryId { get; set; }
+        public Category Category {get;set;}
+        public Guid? AccountId { get; set; }
+        public String SHA256 { get; set; }
     }
 }

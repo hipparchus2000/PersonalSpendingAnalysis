@@ -8,10 +8,13 @@ namespace PersonalSpendingAnalysis.Repo.Entities
 {
     public class Category
     {
+        public Category()
+        {
+            Id = Guid.NewGuid();
+        }
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public List<CategorySearchString> SearchStrings { get; set; }
-
-
+        public string SearchString { get; set; }
+        
     }
 }

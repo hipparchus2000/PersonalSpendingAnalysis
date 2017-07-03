@@ -36,6 +36,16 @@
             this.ManageAccounts = new System.Windows.Forms.Button();
             this.ManageOldImports = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.transactionsGridView = new System.Windows.Forms.DataGridView();
+            this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.transactionDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Notes = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.amount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Category = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.buttonAutoCategorize = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.buttonCharts = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.transactionsGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -64,6 +74,7 @@
             this.manageCategories.TabIndex = 2;
             this.manageCategories.Text = "Manage Categories";
             this.manageCategories.UseVisualStyleBackColor = true;
+            this.manageCategories.Click += new System.EventHandler(this.manageCategories_Click);
             // 
             // ChartSpending
             // 
@@ -82,6 +93,7 @@
             this.ManageBudget.TabIndex = 4;
             this.ManageBudget.Text = "Manage Budget";
             this.ManageBudget.UseVisualStyleBackColor = true;
+            this.ManageBudget.Click += new System.EventHandler(this.ManageBudget_Click);
             // 
             // ManageAccounts
             // 
@@ -91,6 +103,7 @@
             this.ManageAccounts.TabIndex = 5;
             this.ManageAccounts.Text = "Manage Accounts";
             this.ManageAccounts.UseVisualStyleBackColor = true;
+            this.ManageAccounts.Click += new System.EventHandler(this.ManageAccounts_Click);
             // 
             // ManageOldImports
             // 
@@ -105,11 +118,92 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // transactionsGridView
+            // 
+            this.transactionsGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.transactionsGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Id,
+            this.transactionDate,
+            this.Notes,
+            this.amount,
+            this.Category});
+            this.transactionsGridView.Location = new System.Drawing.Point(13, 40);
+            this.transactionsGridView.Name = "transactionsGridView";
+            this.transactionsGridView.ReadOnly = true;
+            this.transactionsGridView.Size = new System.Drawing.Size(1023, 355);
+            this.transactionsGridView.TabIndex = 7;
+            // 
+            // Id
+            // 
+            this.Id.HeaderText = "Id";
+            this.Id.Name = "Id";
+            this.Id.ReadOnly = true;
+            // 
+            // transactionDate
+            // 
+            this.transactionDate.HeaderText = "Date";
+            this.transactionDate.Name = "transactionDate";
+            this.transactionDate.ReadOnly = true;
+            // 
+            // Notes
+            // 
+            this.Notes.HeaderText = "Desc";
+            this.Notes.Name = "Notes";
+            this.Notes.ReadOnly = true;
+            this.Notes.Width = 300;
+            // 
+            // amount
+            // 
+            this.amount.HeaderText = "Amount";
+            this.amount.Name = "amount";
+            this.amount.ReadOnly = true;
+            // 
+            // Category
+            // 
+            this.Category.HeaderText = "Category";
+            this.Category.Name = "Category";
+            this.Category.ReadOnly = true;
+            this.Category.Width = 150;
+            // 
+            // buttonAutoCategorize
+            // 
+            this.buttonAutoCategorize.Location = new System.Drawing.Point(939, 401);
+            this.buttonAutoCategorize.Name = "buttonAutoCategorize";
+            this.buttonAutoCategorize.Size = new System.Drawing.Size(97, 23);
+            this.buttonAutoCategorize.TabIndex = 8;
+            this.buttonAutoCategorize.Text = "Auto Categorize";
+            this.buttonAutoCategorize.UseVisualStyleBackColor = true;
+            this.buttonAutoCategorize.Click += new System.EventHandler(this.buttonAutoCategorize_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(647, 401);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(137, 13);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "uncategorized transactions:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // buttonCharts
+            // 
+            this.buttonCharts.Location = new System.Drawing.Point(661, 2);
+            this.buttonCharts.Name = "buttonCharts";
+            this.buttonCharts.Size = new System.Drawing.Size(112, 23);
+            this.buttonCharts.TabIndex = 10;
+            this.buttonCharts.Text = "Charts";
+            this.buttonCharts.UseVisualStyleBackColor = true;
+            this.buttonCharts.Click += new System.EventHandler(this.buttonCharts_Click);
+            // 
             // PersonalSpendingAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1048, 407);
+            this.ClientSize = new System.Drawing.Size(1048, 430);
+            this.Controls.Add(this.buttonCharts);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.buttonAutoCategorize);
+            this.Controls.Add(this.transactionsGridView);
             this.Controls.Add(this.ManageOldImports);
             this.Controls.Add(this.ManageAccounts);
             this.Controls.Add(this.ManageBudget);
@@ -119,6 +213,8 @@
             this.Controls.Add(this.toolStrip1);
             this.Name = "PersonalSpendingAnalysis";
             this.Text = "Personal Spending Analysis";
+            this.Load += new System.EventHandler(this.PersonalSpendingAnalysis_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.transactionsGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -134,6 +230,15 @@
         private System.Windows.Forms.Button ManageAccounts;
         private System.Windows.Forms.Button ManageOldImports;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.DataGridView transactionsGridView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Id;
+        private System.Windows.Forms.DataGridViewTextBoxColumn transactionDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Notes;
+        private System.Windows.Forms.DataGridViewTextBoxColumn amount;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Category;
+        private System.Windows.Forms.Button buttonAutoCategorize;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button buttonCharts;
     }
 }
 
