@@ -23,10 +23,16 @@ namespace PersonalSpendingAnalysis.Dialogs
         {
             var context = new PersonalSpendingAnalysisRepo();
 
-            //foreach (var category in context.Categories) {
-            //    context.Categories.Remove(category);
-            //}
-            //context.SaveChanges();
+            foreach (var transaction in context.Transaction)
+            {
+                transaction.Category=null;
+            }
+            context.SaveChanges();
+
+            foreach (var category in context.Categories) {
+                context.Categories.Remove(category);
+            }
+            context.SaveChanges();
 
             foreach (DataGridViewRow row in this.categoriesGridView.Rows)
             {
@@ -61,7 +67,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                     existingRowForThisId.SearchString = searchString;
                 }
                 context.SaveChanges();
-                //this.Close();
+                
             }
         }
 

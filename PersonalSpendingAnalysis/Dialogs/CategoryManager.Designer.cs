@@ -101,9 +101,15 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void CategoryManager_Load(object sender, EventArgs e)
         {
+            refreshCategories();
+        }
+
+        private void refreshCategories()
+        {
+
             var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.OrderBy(x=>x.Name);
-            
+            var categories = context.Categories.OrderBy(x => x.Name);
+
             foreach (var category in categories)
             {
                 //category

@@ -31,11 +31,9 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.ImportCsv = new System.Windows.Forms.Button();
             this.manageCategories = new System.Windows.Forms.Button();
-            this.ChartSpending = new System.Windows.Forms.Button();
             this.ManageBudget = new System.Windows.Forms.Button();
             this.ManageAccounts = new System.Windows.Forms.Button();
             this.ManageOldImports = new System.Windows.Forms.Button();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.transactionsGridView = new System.Windows.Forms.DataGridView();
             this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.transactionDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -45,6 +43,9 @@
             this.buttonAutoCategorize = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonCharts = new System.Windows.Forms.Button();
+            this.buttonExportAllToCsv = new System.Windows.Forms.Button();
+            this.buttonImportAllFromCsv = new System.Windows.Forms.Button();
+            this.buttonReports = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.transactionsGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -52,7 +53,7 @@
             // 
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1048, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1175, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -75,15 +76,6 @@
             this.manageCategories.Text = "Manage Categories";
             this.manageCategories.UseVisualStyleBackColor = true;
             this.manageCategories.Click += new System.EventHandler(this.manageCategories_Click);
-            // 
-            // ChartSpending
-            // 
-            this.ChartSpending.Location = new System.Drawing.Point(214, 2);
-            this.ChartSpending.Name = "ChartSpending";
-            this.ChartSpending.Size = new System.Drawing.Size(97, 23);
-            this.ChartSpending.TabIndex = 3;
-            this.ChartSpending.Text = "Chart Spending";
-            this.ChartSpending.UseVisualStyleBackColor = true;
             // 
             // ManageBudget
             // 
@@ -114,10 +106,6 @@
             this.ManageOldImports.Text = "Manage Old Imports";
             this.ManageOldImports.UseVisualStyleBackColor = true;
             // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
-            // 
             // transactionsGridView
             // 
             this.transactionsGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -130,8 +118,9 @@
             this.transactionsGridView.Location = new System.Drawing.Point(13, 40);
             this.transactionsGridView.Name = "transactionsGridView";
             this.transactionsGridView.ReadOnly = true;
-            this.transactionsGridView.Size = new System.Drawing.Size(1023, 355);
+            this.transactionsGridView.Size = new System.Drawing.Size(1150, 355);
             this.transactionsGridView.TabIndex = 7;
+            this.transactionsGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.transactionsGridView_CellContentClick);
             // 
             // Id
             // 
@@ -195,11 +184,43 @@
             this.buttonCharts.UseVisualStyleBackColor = true;
             this.buttonCharts.Click += new System.EventHandler(this.buttonCharts_Click);
             // 
+            // buttonExportAllToCsv
+            // 
+            this.buttonExportAllToCsv.Location = new System.Drawing.Point(929, 2);
+            this.buttonExportAllToCsv.Name = "buttonExportAllToCsv";
+            this.buttonExportAllToCsv.Size = new System.Drawing.Size(108, 23);
+            this.buttonExportAllToCsv.TabIndex = 11;
+            this.buttonExportAllToCsv.Text = "Export To PSA Csv";
+            this.buttonExportAllToCsv.UseVisualStyleBackColor = true;
+            this.buttonExportAllToCsv.Click += new System.EventHandler(this.buttonExportAllToCsv_Click);
+            // 
+            // buttonImportAllFromCsv
+            // 
+            this.buttonImportAllFromCsv.Location = new System.Drawing.Point(1043, 2);
+            this.buttonImportAllFromCsv.Name = "buttonImportAllFromCsv";
+            this.buttonImportAllFromCsv.Size = new System.Drawing.Size(120, 23);
+            this.buttonImportAllFromCsv.TabIndex = 12;
+            this.buttonImportAllFromCsv.Text = "Import From PSA Csv";
+            this.buttonImportAllFromCsv.UseVisualStyleBackColor = true;
+            // 
+            // buttonReports
+            // 
+            this.buttonReports.Location = new System.Drawing.Point(779, 2);
+            this.buttonReports.Name = "buttonReports";
+            this.buttonReports.Size = new System.Drawing.Size(112, 23);
+            this.buttonReports.TabIndex = 13;
+            this.buttonReports.Text = "Reports";
+            this.buttonReports.UseVisualStyleBackColor = true;
+            this.buttonReports.Click += new System.EventHandler(this.buttonReports_Click);
+            // 
             // PersonalSpendingAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1048, 430);
+            this.ClientSize = new System.Drawing.Size(1175, 430);
+            this.Controls.Add(this.buttonReports);
+            this.Controls.Add(this.buttonImportAllFromCsv);
+            this.Controls.Add(this.buttonExportAllToCsv);
             this.Controls.Add(this.buttonCharts);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.buttonAutoCategorize);
@@ -207,7 +228,6 @@
             this.Controls.Add(this.ManageOldImports);
             this.Controls.Add(this.ManageAccounts);
             this.Controls.Add(this.ManageBudget);
-            this.Controls.Add(this.ChartSpending);
             this.Controls.Add(this.manageCategories);
             this.Controls.Add(this.ImportCsv);
             this.Controls.Add(this.toolStrip1);
@@ -225,11 +245,9 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.Button ImportCsv;
         private System.Windows.Forms.Button manageCategories;
-        private System.Windows.Forms.Button ChartSpending;
         private System.Windows.Forms.Button ManageBudget;
         private System.Windows.Forms.Button ManageAccounts;
         private System.Windows.Forms.Button ManageOldImports;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.DataGridView transactionsGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn Id;
         private System.Windows.Forms.DataGridViewTextBoxColumn transactionDate;
@@ -239,6 +257,9 @@
         private System.Windows.Forms.Button buttonAutoCategorize;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonCharts;
+        private System.Windows.Forms.Button buttonExportAllToCsv;
+        private System.Windows.Forms.Button buttonImportAllFromCsv;
+        private System.Windows.Forms.Button buttonReports;
     }
 }
 

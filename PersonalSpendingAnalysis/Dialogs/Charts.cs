@@ -13,10 +13,17 @@ using System.Globalization;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
-    
+    enum chartTypeEnum
+    {
+        monthByCategory,
+        yearByCategory,
+        pieChart
+    }
+
     public partial class Charts : Form
     {
         SeriesChartType style;
+        chartTypeEnum _chartType;
 
         static string[] ColourValues = new string[] {
             "FF0000", "00FF00", "0000FF", "FFFF00", "FF00FF", "00FFFF", "000000",
@@ -32,6 +39,7 @@ namespace PersonalSpendingAnalysis.Dialogs
         public Charts()
         {
             InitializeComponent();
+            _chartType = chartTypeEnum.monthByCategory;
         }
 
         private void listOfChartTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -67,34 +75,50 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void drawChart()
         {
-            
+            switch (_chartType) {
+                case chartTypeEnum.monthByCategory:
+                    drawMonthByCategoryChart();
+                    break;
+                case chartTypeEnum.yearByCategory:
+                    drawYearByCategoryChart();
+                    break;
+                case chartTypeEnum.pieChart:
+                    drawPieChart();
+                    break;
+            }
+
+        }
+
+        private void drawMonthByCategoryChart()
+        {
             var context = new PersonalSpendingAnalysisRepo();
             var transactions = context.Transaction.Include("Category")
-                .Where(x => (x.transactionDate > this.startDate.Value) 
+                .Where(x => (x.transactionDate > this.startDate.Value)
                 && (x.transactionDate < this.endDate.Value)
-                && (this.showDebitsOnly.Checked && x.amount<0)
+                && (this.showDebitsOnly.Checked && x.amount < 0)
                 );
             var categories = transactions
-                .GroupBy(x => new { Year = x.transactionDate.Year, Month = x.transactionDate.Month, CategoryName = x.Category.Name } )
+                .GroupBy(x => new { Year = x.transactionDate.Year, Month = x.transactionDate.Month, CategoryName = x.Category.Name })
                 .Select(x => new {
                     Year = x.Key.Year,
                     Month = x.Key.Month,
                     CategoryName = x.Key.CategoryName,
-                    Amount = -1 * x.Sum(y => y.amount) })
+                    Amount = -1 * x.Sum(y => y.amount)
+                })
                     .ToList();
 
             this.chart.Series.Clear();
             this.chart.Legends.Clear();
             chart.ChartAreas.First().AxisX.CustomLabels.Clear();
 
-            List <String> categoryList = categories.Select(x => x.CategoryName).Distinct().ToList();
+            List<String> categoryList = categories.Select(x => x.CategoryName).Distinct().ToList();
             var monthList = MonthsBetween(this.startDate.Value, this.endDate.Value);
 
             var monthnum = 1;
             foreach (var month in monthList)
             {
                 var yearmonth = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(month.Item1) + " " + month.Item2;
-                chart.ChartAreas.First().AxisX.CustomLabels.Add(monthnum-0.5, monthnum+0.5, yearmonth);
+                chart.ChartAreas.First().AxisX.CustomLabels.Add(monthnum - 0.5, monthnum + 0.5, yearmonth);
                 monthnum++;
             }
 
@@ -102,11 +126,11 @@ namespace PersonalSpendingAnalysis.Dialogs
 
             foreach (var category in categoryList)
             {
-                var newColor = ColorTranslator.FromHtml("#"+ColourValues[colorIndex]);
-                var subSet = categories.Where(x => x.CategoryName == category).OrderBy(x=>x.Month);
+                var newColor = ColorTranslator.FromHtml("#" + ColourValues[colorIndex]);
+                var subSet = categories.Where(x => x.CategoryName == category).OrderBy(x => x.Month);
                 var newSeries = new Series()
                 {
-                    Name = category==null?"uncategorized":category,
+                    Name = category == null ? "uncategorized" : category,
                     Color = newColor,
                     IsVisibleInLegend = true,
                     IsXValueIndexed = true,
@@ -115,17 +139,135 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                 foreach (var month in monthList)
                 {
-                    var thisMonth = subSet.FirstOrDefault(x => (x.Month==month.Item1) && (x.Year==month.Item2));
+                    var thisMonth = subSet.FirstOrDefault(x => (x.Month == month.Item1) && (x.Year == month.Item2));
                     var total = thisMonth == null ? 0 : thisMonth.Amount;
                     newSeries.Points.AddY((double)total);
                 }
 
                 this.chart.Series.Add(newSeries);
-                this.chart.Legends.Add(new Legend (category));
+                this.chart.Legends.Add(new Legend(category));
                 colorIndex++;
             }
-
         }
+
+        private void drawYearByCategoryChart()
+        {
+            var context = new PersonalSpendingAnalysisRepo();
+            var transactions = context.Transaction.Include("Category")
+                .Where(x => (x.transactionDate > this.startDate.Value)
+                && (x.transactionDate < this.endDate.Value)
+                && (this.showDebitsOnly.Checked && x.amount < 0)
+                );
+            var categories = transactions
+                .GroupBy(x => new { Year = x.transactionDate.Year, Month = x.transactionDate.Month, CategoryName = x.Category.Name })
+                .Select(x => new {
+                    Year = x.Key.Year,
+                    CategoryName = x.Key.CategoryName,
+                    Amount = -1 * x.Sum(y => y.amount)
+                })
+                    .ToList();
+
+            this.chart.Series.Clear();
+            this.chart.Legends.Clear();
+            chart.ChartAreas.First().AxisX.CustomLabels.Clear();
+
+            List<String> categoryList = categories.Select(x => x.CategoryName).Distinct().ToList();
+            var yearList = Enumerable.Range(this.startDate.Value.Year, this.endDate.Value.Year).ToList();
+
+            foreach (var year in yearList)
+            {
+                chart.ChartAreas.First().AxisX.CustomLabels.Add(year - 0.5, year + 0.5, year.ToString());
+            }
+
+            var colorIndex = 0;
+
+            foreach (var category in categoryList)
+            {
+                var newColor = ColorTranslator.FromHtml("#" + ColourValues[colorIndex]);
+                var subSet = categories.Where(x => x.CategoryName == category).OrderBy(x => x.Year);
+                var newSeries = new Series()
+                {
+                    Name = category == null ? "uncategorized" : category,
+                    Color = newColor,
+                    IsVisibleInLegend = true,
+                    IsXValueIndexed = true,
+                    ChartType = style,
+                };
+
+                foreach (var year in yearList)
+                {
+                    var thisYear = subSet.FirstOrDefault(x => (x.Year == year ) );
+                    var total = thisYear == null ? 0 : thisYear.Amount;
+                    newSeries.Points.AddY((double)total);
+                }
+
+                this.chart.Series.Add(newSeries);
+                this.chart.Legends.Add(new Legend(category));
+                colorIndex++;
+            }
+        }
+
+        private void drawPieChart()
+        {
+            var context = new PersonalSpendingAnalysisRepo();
+            var transactions = context.Transaction.Include("Category")
+                .Where(x => (x.transactionDate > this.startDate.Value)
+                && (x.transactionDate < this.endDate.Value)
+                && (this.showDebitsOnly.Checked && x.amount < 0)
+                );
+            var categories = transactions
+                .GroupBy(x => new { Year = x.transactionDate.Year, Month = x.transactionDate.Month, CategoryName = x.Category.Name })
+                .Select(x => new {
+                    Year = x.Key.Year,
+                    Month = x.Key.Month,
+                    CategoryName = x.Key.CategoryName,
+                    Amount = -1 * x.Sum(y => y.amount)
+                })
+                    .ToList();
+
+            this.chart.Series.Clear();
+            this.chart.Legends.Clear();
+            chart.ChartAreas.First().AxisX.CustomLabels.Clear();
+
+            List<String> categoryList = categories.Select(x => x.CategoryName).Distinct().ToList();
+            var monthList = MonthsBetween(this.startDate.Value, this.endDate.Value);
+
+            var monthnum = 1;
+            foreach (var month in monthList)
+            {
+                var yearmonth = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(month.Item1) + " " + month.Item2;
+                chart.ChartAreas.First().AxisX.CustomLabels.Add(monthnum - 0.5, monthnum + 0.5, yearmonth);
+                monthnum++;
+            }
+
+            var colorIndex = 0;
+
+            foreach (var category in categoryList)
+            {
+                var newColor = ColorTranslator.FromHtml("#" + ColourValues[colorIndex]);
+                var subSet = categories.Where(x => x.CategoryName == category).OrderBy(x => x.Month);
+                var newSeries = new Series()
+                {
+                    Name = category == null ? "uncategorized" : category,
+                    Color = newColor,
+                    IsVisibleInLegend = true,
+                    IsXValueIndexed = true,
+                    ChartType = style,
+                };
+
+                foreach (var month in monthList)
+                {
+                    var thisMonth = subSet.FirstOrDefault(x => (x.Month == month.Item1) && (x.Year == month.Item2));
+                    var total = thisMonth == null ? 0 : thisMonth.Amount;
+                    newSeries.Points.AddY((double)total);
+                }
+
+                this.chart.Series.Add(newSeries);
+                this.chart.Legends.Add(new Legend(category));
+                colorIndex++;
+            }
+        }
+
 
         private void Charts_Load(object sender, EventArgs e)
         {
@@ -154,26 +296,22 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
+            _chartType = chartTypeEnum.monthByCategory;
             drawChart();
         }
 
         private void chartType2_CheckedChanged(object sender, EventArgs e)
         {
-
+            _chartType = chartTypeEnum.yearByCategory;
             drawChart();
         }
 
         private void chartType3_CheckedChanged(object sender, EventArgs e)
         {
-
+            _chartType = chartTypeEnum.pieChart;
             drawChart();
         }
-
-        private void chartType4_CheckedChanged(object sender, EventArgs e)
-        {
-            drawChart();
-        }
-
+        
         private void radioButtonStackedColumn_CheckedChanged(object sender, EventArgs e)
         {
             style = SeriesChartType.StackedColumn;

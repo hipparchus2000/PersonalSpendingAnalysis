@@ -11,12 +11,27 @@ using System.Windows.Forms;
 using System.Security.Cryptography;
 using CsvHelper;
 using PersonalSpendingAnalysis.Dialogs;
-
+using Newtonsoft.Json;
+using PersonalSpendingAnalysis.Repo.Entities;
+using System.IO;
+using Newtonsoft.Json.Converters;
 
 namespace PersonalSpendingAnalysis
 {
+    enum orderBy
+    {
+        transactionDateDescending,
+        transactionDateAscending,
+        amountAscending,
+        amountDescending,
+        categoryAscending,
+        categoryDescending
+    }
+
     public partial class PersonalSpendingAnalysis : Form
     {
+        orderBy currentOrder = orderBy.transactionDateDescending;
+
 
         public PersonalSpendingAnalysis()
         {
@@ -55,10 +70,13 @@ namespace PersonalSpendingAnalysis
         private void ImportCsv_Click(object sender, EventArgs e)
         {
             ImportResults results = new ImportResults();
-            DialogResult result = openFileDialog1.ShowDialog();
+            var importCsvDialog = new OpenFileDialog();
+            importCsvDialog.Filter = "CSV Files | *.csv";
+            importCsvDialog.Title = "Select Csv File to import";
+            DialogResult result = importCsvDialog.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                string csvText = System.IO.File.ReadAllText(openFileDialog1.FileName);
+                string csvText = System.IO.File.ReadAllText(importCsvDialog.FileName);
                 csvText = csvText.Replace("\n", "");
                 var importLines = csvText.Split('\r');
 
@@ -141,42 +159,42 @@ namespace PersonalSpendingAnalysis
         }
 
 
-        private void ImportCsv_Click2(object sender, EventArgs e)
-        {
-            DialogResult result = openFileDialog1.ShowDialog();
-            if (result == DialogResult.OK) // Test result.
-            {
-                var csv = new CsvReader(System.IO.File.OpenText(openFileDialog1.FileName));
-                var myCustomObjects = csv.GetRecords<MyCustomObject>();
-                foreach (var ob in myCustomObjects) {
-                    var importLine = ob.Date + ob.Type + ob.Description + ob.Value + ob.Balance + ob.Account_Name + ob.Account_Number;
-                    var context = new PersonalSpendingAnalysisRepo();
-                    var id = sha256_hash(importLine);
+        //private void ImportCsv_Click2(object sender, EventArgs e)
+        //{
+        //    DialogResult result = openFileDialog1.ShowDialog();
+        //    if (result == DialogResult.OK) // Test result.
+        //    {
+        //        var csv = new CsvReader(System.IO.File.OpenText(openFileDialog1.FileName));
+        //        var myCustomObjects = csv.GetRecords<MyCustomObject>();
+        //        foreach (var ob in myCustomObjects) {
+        //            var importLine = ob.Date + ob.Type + ob.Description + ob.Value + ob.Balance + ob.Account_Name + ob.Account_Number;
+        //            var context = new PersonalSpendingAnalysisRepo();
+        //            var id = sha256_hash(importLine);
 
-                    DateTime tDate;
-                    DateTime.TryParse(ob.Date, out tDate);
-                    decimal tAmount;
-                    Decimal.TryParse(ob.Value, out tAmount);
+        //            DateTime tDate;
+        //            DateTime.TryParse(ob.Date, out tDate);
+        //            decimal tAmount;
+        //            Decimal.TryParse(ob.Value, out tAmount);
 
-                    var existingRowForThisSHA256 = context.Transaction.SingleOrDefault(x => x.SHA256 == id);
-                    if (existingRowForThisSHA256 == null)
-                    {
-                        context.Transaction.Add(new Repo.Entities.Transaction
-                        {
-                            Id = Guid.NewGuid(),
-                            transactionDate = tDate,
-                            amount = tAmount,
-                            Notes = ob.Description,
-                            Category = null,
-                            SHA256 = id,
-                        });
-                        context.SaveChanges();
-                    }
+        //            var existingRowForThisSHA256 = context.Transaction.SingleOrDefault(x => x.SHA256 == id);
+        //            if (existingRowForThisSHA256 == null)
+        //            {
+        //                context.Transaction.Add(new Repo.Entities.Transaction
+        //                {
+        //                    Id = Guid.NewGuid(),
+        //                    transactionDate = tDate,
+        //                    amount = tAmount,
+        //                    Notes = ob.Description,
+        //                    Category = null,
+        //                    SHA256 = id,
+        //                });
+        //                context.SaveChanges();
+        //            }
 
-                    refresh();
-                }
-            }
-        }
+        //            refresh();
+        //        }
+        //    }
+        //}
 
         private class MyCustomObject
         {
@@ -216,12 +234,13 @@ namespace PersonalSpendingAnalysis
         {
             refresh();
         }
-
+        
         private void buttonAutoCategorize_Click(object sender, EventArgs e)
         {
             var context = new PersonalSpendingAnalysisRepo();
             var categories = context.Categories;
             var datarows = context.Transaction;
+            
             var force = true;
 
             foreach (var datarow in datarows)
@@ -261,7 +280,29 @@ namespace PersonalSpendingAnalysis
 
             var context = new PersonalSpendingAnalysisRepo();
             var categories = context.Categories;
-            var datarows = context.Transaction.Include("Category").OrderByDescending(x => x.transactionDate).ToArray();
+            var datarows = new List<Repo.Entities.Transaction>().ToList();
+
+            switch (currentOrder) {
+                case orderBy.transactionDateDescending:
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.transactionDate).ToList();
+                    break;
+                case orderBy.transactionDateAscending:
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.transactionDate).ToList();
+                    break;
+                case orderBy.amountAscending:
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.amount).ToList();
+                    break;
+                case orderBy.amountDescending:
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.amount).ToList();
+                    break;
+                case orderBy.categoryAscending:
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.Category==null? "": x.Category.Name).ToList();
+                    break;
+                case orderBy.categoryDescending:
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.Category == null ? "" : x.Category.Name).ToList();
+                    break;
+            }
+
             var uncategorized = 0;
             var totalTransactions = 0;
             decimal value = 0;
@@ -305,6 +346,62 @@ namespace PersonalSpendingAnalysis
         {
             var dlg = new Charts();
             dlg.Show();
+        }
+
+        private void buttonReports_Click(object sender, EventArgs e)
+        {
+            var dlg = new Reports();
+            dlg.Show();
+        }
+
+        private void transactionsGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 2)
+            {
+                var row = this.transactionsGridView.Rows[e.RowIndex];
+                var description = row.Cells[2].Value.ToString();
+                var dlg = new AddSearchStringToCategory();
+                dlg.setSearchString(description);
+                dlg.Show();
+            }
+        }
+
+        public class Exportable
+        {
+            public List<Transaction> transactions;
+            public List<Category> categories;
+        }
+
+        private void buttonExportAllToCsv_Click(object sender, EventArgs e)
+        {
+            var context = new PersonalSpendingAnalysisRepo();
+            var exportable = new Exportable();
+            exportable.transactions = context.Transaction.ToList();
+            exportable.categories = context.Categories.ToList();
+            
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Title = "Enter name of file to save as";
+            DialogResult result = dlg.ShowDialog();
+            if (result == DialogResult.OK) // Test result.
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Converters.Add(new JavaScriptDateTimeConverter());
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+
+                using (StreamWriter sw = new StreamWriter(dlg.FileName))
+                using (JsonWriter writer = new JsonTextWriter(sw))
+                {
+                    serializer.Serialize(writer, exportable);
+                }
+            }
+            
+            
+
+        }
+
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+
         }
     }
 }
