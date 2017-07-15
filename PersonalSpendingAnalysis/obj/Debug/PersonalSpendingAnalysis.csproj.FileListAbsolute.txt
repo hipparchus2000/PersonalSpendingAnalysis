@@ -58,3 +58,6 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\Pe
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.xml
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.exe
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.pdb
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.dll
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.xml
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AddSearchStringToCategory.resources

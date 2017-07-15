@@ -32,8 +32,6 @@
             this.ImportCsv = new System.Windows.Forms.Button();
             this.manageCategories = new System.Windows.Forms.Button();
             this.ManageBudget = new System.Windows.Forms.Button();
-            this.ManageAccounts = new System.Windows.Forms.Button();
-            this.ManageOldImports = new System.Windows.Forms.Button();
             this.transactionsGridView = new System.Windows.Forms.DataGridView();
             this.Id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.transactionDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -86,25 +84,6 @@
             this.ManageBudget.Text = "Manage Budget";
             this.ManageBudget.UseVisualStyleBackColor = true;
             this.ManageBudget.Click += new System.EventHandler(this.ManageBudget_Click);
-            // 
-            // ManageAccounts
-            // 
-            this.ManageAccounts.Location = new System.Drawing.Point(429, 2);
-            this.ManageAccounts.Name = "ManageAccounts";
-            this.ManageAccounts.Size = new System.Drawing.Size(108, 23);
-            this.ManageAccounts.TabIndex = 5;
-            this.ManageAccounts.Text = "Manage Accounts";
-            this.ManageAccounts.UseVisualStyleBackColor = true;
-            this.ManageAccounts.Click += new System.EventHandler(this.ManageAccounts_Click);
-            // 
-            // ManageOldImports
-            // 
-            this.ManageOldImports.Location = new System.Drawing.Point(543, 2);
-            this.ManageOldImports.Name = "ManageOldImports";
-            this.ManageOldImports.Size = new System.Drawing.Size(112, 23);
-            this.ManageOldImports.TabIndex = 6;
-            this.ManageOldImports.Text = "Manage Old Imports";
-            this.ManageOldImports.UseVisualStyleBackColor = true;
             // 
             // transactionsGridView
             // 
@@ -186,11 +165,11 @@
             // 
             // buttonExportAllToCsv
             // 
-            this.buttonExportAllToCsv.Location = new System.Drawing.Point(929, 2);
+            this.buttonExportAllToCsv.Location = new System.Drawing.Point(924, 2);
             this.buttonExportAllToCsv.Name = "buttonExportAllToCsv";
-            this.buttonExportAllToCsv.Size = new System.Drawing.Size(108, 23);
+            this.buttonExportAllToCsv.Size = new System.Drawing.Size(113, 23);
             this.buttonExportAllToCsv.TabIndex = 11;
-            this.buttonExportAllToCsv.Text = "Export To PSA Csv";
+            this.buttonExportAllToCsv.Text = "Export To PSA Json";
             this.buttonExportAllToCsv.UseVisualStyleBackColor = true;
             this.buttonExportAllToCsv.Click += new System.EventHandler(this.buttonExportAllToCsv_Click);
             // 
@@ -200,7 +179,7 @@
             this.buttonImportAllFromCsv.Name = "buttonImportAllFromCsv";
             this.buttonImportAllFromCsv.Size = new System.Drawing.Size(120, 23);
             this.buttonImportAllFromCsv.TabIndex = 12;
-            this.buttonImportAllFromCsv.Text = "Import From PSA Csv";
+            this.buttonImportAllFromCsv.Text = "Import From PSA Json";
             this.buttonImportAllFromCsv.UseVisualStyleBackColor = true;
             // 
             // buttonReports
@@ -225,8 +204,6 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.buttonAutoCategorize);
             this.Controls.Add(this.transactionsGridView);
-            this.Controls.Add(this.ManageOldImports);
-            this.Controls.Add(this.ManageAccounts);
             this.Controls.Add(this.ManageBudget);
             this.Controls.Add(this.manageCategories);
             this.Controls.Add(this.ImportCsv);
@@ -246,8 +223,6 @@
         private System.Windows.Forms.Button ImportCsv;
         private System.Windows.Forms.Button manageCategories;
         private System.Windows.Forms.Button ManageBudget;
-        private System.Windows.Forms.Button ManageAccounts;
-        private System.Windows.Forms.Button ManageOldImports;
         private System.Windows.Forms.DataGridView transactionsGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn Id;
         private System.Windows.Forms.DataGridViewTextBoxColumn transactionDate;

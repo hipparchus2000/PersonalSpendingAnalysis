@@ -45,6 +45,8 @@
             this.radioButtonStackedArea = new System.Windows.Forms.RadioButton();
             this.radioButtonStackedColumn = new System.Windows.Forms.RadioButton();
             this.styleBox = new System.Windows.Forms.GroupBox();
+            this.buttonBackwards = new System.Windows.Forms.Button();
+            this.buttonForward = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             this.chartType.SuspendLayout();
             this.styleBox.SuspendLayout();
@@ -67,8 +69,9 @@
             this.chart.TabIndex = 0;
             this.chart.Text = "chart1";
             title1.Name = "Title";
-            title1.Text = "chart";
+            title1.Text = "Personal Spending Analysis";
             this.chart.Titles.Add(title1);
+            this.chart.Click += new System.EventHandler(this.chart_Click);
             // 
             // startDate
             // 
@@ -197,11 +200,33 @@
             this.styleBox.TabStop = false;
             this.styleBox.Text = "Chart Type";
             // 
+            // buttonBackwards
+            // 
+            this.buttonBackwards.Location = new System.Drawing.Point(15, 25);
+            this.buttonBackwards.Name = "buttonBackwards";
+            this.buttonBackwards.Size = new System.Drawing.Size(75, 23);
+            this.buttonBackwards.TabIndex = 10;
+            this.buttonBackwards.Text = "<<";
+            this.buttonBackwards.UseVisualStyleBackColor = true;
+            this.buttonBackwards.Click += new System.EventHandler(this.buttonBackwards_Click);
+            // 
+            // buttonForward
+            // 
+            this.buttonForward.Location = new System.Drawing.Point(140, 25);
+            this.buttonForward.Name = "buttonForward";
+            this.buttonForward.Size = new System.Drawing.Size(75, 23);
+            this.buttonForward.TabIndex = 11;
+            this.buttonForward.Text = ">>";
+            this.buttonForward.UseVisualStyleBackColor = true;
+            this.buttonForward.Click += new System.EventHandler(this.buttonForward_Click);
+            // 
             // Charts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 591);
+            this.Controls.Add(this.buttonForward);
+            this.Controls.Add(this.buttonBackwards);
             this.Controls.Add(this.styleBox);
             this.Controls.Add(this.chartType);
             this.Controls.Add(this.showDebitsOnly);
@@ -238,5 +263,7 @@
         private System.Windows.Forms.RadioButton radioButtonStackedArea;
         private System.Windows.Forms.RadioButton radioButtonStackedColumn;
         private System.Windows.Forms.GroupBox styleBox;
+        private System.Windows.Forms.Button buttonBackwards;
+        private System.Windows.Forms.Button buttonForward;
     }
 }

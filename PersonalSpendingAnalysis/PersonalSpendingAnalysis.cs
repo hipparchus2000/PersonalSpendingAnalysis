@@ -137,6 +137,8 @@ namespace PersonalSpendingAnalysis
 
 
             }
+
+            refresh();
         } //end click
 
         private String purgeCommasInTextFields(String original)
@@ -263,6 +265,7 @@ namespace PersonalSpendingAnalysis
                                 if (datarow.Notes.ToLower().Contains(trimmedSearchString))
                                 {
                                     datarow.CategoryId = category.Id;
+                                    datarow.SubCategory = trimmedSearchString;
                                 }
                             }
                         }
