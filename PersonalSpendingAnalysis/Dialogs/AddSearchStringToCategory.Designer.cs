@@ -30,30 +30,20 @@
         {
             this.components = new System.ComponentModel.Container();
             this.comboBoxCategory = new System.Windows.Forms.ComboBox();
-            this.categoryBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.textBoxSearchString = new System.Windows.Forms.TextBox();
             this.buttonAddSearchStringToCategory = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.categoryBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // comboBoxCategory
             // 
-            this.comboBoxCategory.DataBindings.Add(new System.Windows.Forms.Binding("SelectedItem", this.categoryBindingSource, "Name", true));
-            this.comboBoxCategory.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.categoryBindingSource, "Id", true));
-            this.comboBoxCategory.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.categoryBindingSource, "Name", true));
-            this.comboBoxCategory.DataBindings.Add(new System.Windows.Forms.Binding("Tag", this.categoryBindingSource, "Id", true));
             this.comboBoxCategory.FormattingEnabled = true;
             this.comboBoxCategory.Location = new System.Drawing.Point(33, 39);
             this.comboBoxCategory.Name = "comboBoxCategory";
             this.comboBoxCategory.Size = new System.Drawing.Size(239, 21);
             this.comboBoxCategory.TabIndex = 0;
-            // 
-            // categoryBindingSource
-            // 
-            this.categoryBindingSource.DataSource = typeof(Repo.Entities.Category);
             // 
             // textBoxSearchString
             // 
@@ -115,7 +105,6 @@
             this.Name = "AddSearchStringToCategory";
             this.Text = "AddSearchStringToCategory";
             this.Load += new System.EventHandler(this.AddSearchStringToCategory_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.categoryBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -124,7 +113,6 @@
         #endregion
 
         private System.Windows.Forms.ComboBox comboBoxCategory;
-        private System.Windows.Forms.BindingSource categoryBindingSource;
         private System.Windows.Forms.TextBox textBoxSearchString;
         private System.Windows.Forms.Button buttonAddSearchStringToCategory;
         private System.Windows.Forms.Button buttonCancel;

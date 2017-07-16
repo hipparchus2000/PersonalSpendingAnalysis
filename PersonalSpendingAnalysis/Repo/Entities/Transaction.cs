@@ -22,5 +22,6 @@ namespace PersonalSpendingAnalysis.Repo.Entities
         public String SubCategory { get; set; } //subcategory is search string found
         public Guid? AccountId { get; set; }
         public String SHA256 { get; set; }
+        public bool ManualCategory { get; set; }
     }
 }

@@ -22,7 +22,11 @@ namespace PersonalSpendingAnalysis.Dialogs
             InitializeComponent();
         }
 
-        
+        class SortableTreeNode
+        {
+            public TreeNode treeNode { get; set; }
+            public Decimal? value { get; set; }
+        }
 
         private void buttonReport_Click(object sender, EventArgs e)
         {
@@ -54,19 +58,19 @@ namespace PersonalSpendingAnalysis.Dialogs
                     var value = transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount );
                     var yearNode = new TreeNode(year + " = " + value);
 
-                    var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString;
+                    var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString+",manually assigned";
 
-                    //var subCategories = new List<KeyValuePair<string,decimal?>>();
+
+                    var subCategories = new List<SortableTreeNode>();
+
                     foreach (var searchString in searchStrings.Split(',').ToList())
                     {
                         var subCatValue = transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory==searchString )
                             .Sum(x => (Decimal?)x.amount);
-                        //subCategories.Add(new KeyValuePair<string, decimal?>(searchString,subCatValue));
-
+                        
                         var subCategoryNode = new TreeNode( searchString + " " + subCatValue );
-                        //var subCategoryNode = new TreeNode(subCategory.Key + " " + subCategory.Value);
-
+                        
                         var transactionsInSubcategory = transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString).ToArray();
 
@@ -76,14 +80,15 @@ namespace PersonalSpendingAnalysis.Dialogs
                             var transactionNode = new TreeNode(transactionString);
                             subCategoryNode.Nodes.Add(transactionNode);
                         }
-
-                        yearNode.Nodes.Add(subCategoryNode);
+                        
+                        subCategories.Add(new SortableTreeNode { treeNode = subCategoryNode, value = subCatValue });
 
                     }
 
-                    //foreach (var subCategory in subCategories.OrderBy(x=>x.Key))
-                    //{
-                    // }
+                    foreach (var subCategory in subCategories.OrderBy(x=>x.value))
+                    {
+                        yearNode.Nodes.Add(subCategory.treeNode);
+                    }
 
 
                     node.Nodes.Add(yearNode);
@@ -99,7 +104,8 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void Reports_Load(object sender, EventArgs e)
         {
-            var startDate = DateTime.Today.AddYears(-1);
+            var context = new PersonalSpendingAnalysisRepo();
+            var startDate = context.Transaction.Min(x => x.transactionDate);
             this.endDate.Value = DateTime.Today;
             this.startDate.Value = startDate;
         }

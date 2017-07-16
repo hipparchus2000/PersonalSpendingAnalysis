@@ -64,6 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\ManuallyAssignCategory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ManuallyAssignCategory.Designer.cs">
+      <DependentUpon>ManuallyAssignCategory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddSearchStringToCategory.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -125,6 +131,9 @@
     <Compile Include="Repo\Entities\CategorySearchString.cs" />
     <Compile Include="Repo\Entities\Transaction.cs" />
     <Compile Include="Repo\PersonalSpendingAnalysisRepo.cs" />
+    <EmbeddedResource Include="Dialogs\ManuallyAssignCategory.resx">
+      <DependentUpon>ManuallyAssignCategory.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\AddSearchStringToCategory.resx">
       <DependentUpon>AddSearchStringToCategory.cs</DependentUpon>
     </EmbeddedResource>

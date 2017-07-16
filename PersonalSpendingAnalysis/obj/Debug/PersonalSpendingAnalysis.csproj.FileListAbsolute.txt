@@ -31,7 +31,6 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\Per
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csproj.GenerateResource.Cache
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.exe
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.pdb
-C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csprojResolveAssemblyReference.cache
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.Charts.resources
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.Reports.resources
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AddSearchStringToCategory.resources
@@ -61,3 +60,5 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis2\Pe
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.dll
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.xml
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AddSearchStringToCategory.resources
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.ManuallyAssignCategory.resources
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csprojResolveAssemblyReference.cache

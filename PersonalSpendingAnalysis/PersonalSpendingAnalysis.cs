@@ -247,29 +247,35 @@ namespace PersonalSpendingAnalysis
 
             foreach (var datarow in datarows)
             {
-                if (force==true)
+                if (datarow.ManualCategory != true)
                 {
-                    datarow.CategoryId = null;
-                }
-
-                foreach (var category in categories)
-                {
-                    if (datarow.CategoryId == null )
+                    if (force == true)
                     {
-                        if (!String.IsNullOrEmpty(category.SearchString))
+                        datarow.CategoryId = null;
+                    }
+
+                    foreach (var category in categories)
+                    {
+                        if (datarow.CategoryId == null)
                         {
-                            var searchStrings = category.SearchString.ToLower().Split(',');
-                            foreach (var searchString in searchStrings)
+                            if (!String.IsNullOrEmpty(category.SearchString))
                             {
-                                var trimmedSearchString = searchString.TrimStart().TrimEnd();
-                                if (datarow.Notes.ToLower().Contains(trimmedSearchString))
+                                var searchStrings = category.SearchString.ToLower().Split(',');
+                                foreach (var searchString in searchStrings)
                                 {
-                                    datarow.CategoryId = category.Id;
-                                    datarow.SubCategory = trimmedSearchString;
+                                    var trimmedSearchString = searchString.TrimStart().TrimEnd();
+                                    if (datarow.Notes.ToLower().Contains(trimmedSearchString))
+                                    {
+                                        datarow.CategoryId = category.Id;
+                                        datarow.SubCategory = trimmedSearchString;
+                                    }
                                 }
                             }
                         }
                     }
+                } else
+                {
+                    datarow.SubCategory = "manually assigned";
                 }
             }
 
@@ -366,6 +372,16 @@ namespace PersonalSpendingAnalysis
                 var dlg = new AddSearchStringToCategory();
                 dlg.setSearchString(description);
                 dlg.Show();
+            }
+
+            if (e.ColumnIndex == 4)
+            {
+                var row = this.transactionsGridView.Rows[e.RowIndex];
+                var id = row.Cells[0].Value.ToString();
+                var dlg = new ManuallyAssignCategory();
+                dlg.setTransactionId(new Guid(id));
+                dlg.ShowDialog();
+                refresh();
             }
         }
 

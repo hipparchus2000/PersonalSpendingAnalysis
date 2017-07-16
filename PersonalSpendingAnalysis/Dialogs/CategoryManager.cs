@@ -1,4 +1,5 @@
 ﻿using PersonalSpendingAnalysis.Repo;
+using PersonalSpendingAnalysis.Repo.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,18 +23,15 @@ namespace PersonalSpendingAnalysis.Dialogs
         private void buttonOk_Click(object sender, EventArgs e)
         {
             var context = new PersonalSpendingAnalysisRepo();
+            var originalCategories = context.Categories.ToList();
 
-            foreach (var transaction in context.Transaction)
-            {
-                transaction.Category=null;
-            }
-            context.SaveChanges();
+            var newCategories = new List<Repo.Entities.Category>();
+            var updatedCategories = new List<Repo.Entities.Category>();
+            var unchangedCategories = new List<Repo.Entities.Category>();
+            var deletedCategories = new List<Repo.Entities.Category>();
+            var categoriesFromDialog = new List<Repo.Entities.Category>();
 
-            foreach (var category in context.Categories) {
-                context.Categories.Remove(category);
-            }
-            context.SaveChanges();
-
+            //store the data from the dialog in categories list
             foreach (DataGridViewRow row in this.categoriesGridView.Rows)
             {
                 Guid id;
@@ -49,26 +47,71 @@ namespace PersonalSpendingAnalysis.Dialogs
                 String name = (String)row.Cells[1].Value;
                 String searchString = (String)row.Cells[2].Value;
 
-                var existingRowForThisId = context.Categories.SingleOrDefault(x => x.Id == id);
-                if (existingRowForThisId == null)
+                categoriesFromDialog.Add(new Repo.Entities.Category
                 {
-                    if (!String.IsNullOrEmpty(name))
-                    {
-                        context.Categories.Add(new Repo.Entities.Category
-                        {
-                            Id = id,
-                            Name = name,
-                            SearchString = searchString
-                        });
-                    }
-                } else
+                    Id = id,
+                    Name = name,
+                    SearchString = searchString
+                });
+            }
+
+            foreach(var category in categoriesFromDialog.ToArray())
+            {
+                if (originalCategories.Any(x => x.Id == category.Id && x.Name == category.Name && x.SearchString == category.SearchString))
                 {
-                    existingRowForThisId.Name = name;
-                    existingRowForThisId.SearchString = searchString;
+                    unchangedCategories.Add(category);
                 }
-                context.SaveChanges();
+                else if (originalCategories.Any(x => x.Id == category.Id && (x.Name != category.Name || x.SearchString != category.SearchString)))
+                {
+                    //update the category
+                    var existingRowForThisId = context.Categories.SingleOrDefault(x => x.Id == category.Id);
+                    existingRowForThisId.Name = category.Name;
+                    existingRowForThisId.SearchString = category.SearchString;
+                    updatedCategories.Add(category);
+                }
+                else {
+                    //add new category
+                    if (!String.IsNullOrEmpty(category.Name))
+                    {
+                        var newCategory = context.Categories.Add(new Repo.Entities.Category
+                        {
+                            Id = category.Id,
+                            Name = category.Name,
+                            SearchString = category.SearchString
+                        });
+                        newCategories.Add(category);
+                    }
+                }
                 
             }
+            
+            context.SaveChanges();
+
+            //deletions
+            originalCategories = context.Categories.ToList();
+            var futureCategories = new List<Category>();
+            futureCategories.AddRange(newCategories);
+            futureCategories.AddRange(updatedCategories);
+            futureCategories.AddRange(unchangedCategories);
+            deletedCategories = originalCategories;
+            foreach (var futureCategory in futureCategories)
+            {
+                var categoryToDelete = deletedCategories.Single(x=>x.Id == futureCategory.Id);
+                deletedCategories.Remove(categoryToDelete);
+            }
+
+            //deletedCategories should now have a list of deleted items
+            foreach (var deletedCategory in deletedCategories.ToArray())
+            {
+                foreach (var transaction in context.Transaction.Where(x => x.CategoryId == deletedCategory.Id)) {
+                    transaction.Category = null;
+                }
+                context.SaveChanges();
+
+                context.Categories.Remove(deletedCategory);
+                context.SaveChanges();
+            }
+
         }
 
     }
