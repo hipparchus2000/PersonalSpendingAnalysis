@@ -34,6 +34,7 @@
             this.endDate = new System.Windows.Forms.DateTimePicker();
             this.buttonReport = new System.Windows.Forms.Button();
             this.treeView = new System.Windows.Forms.TreeView();
+            this.buttonExportPdf = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startDate
@@ -85,11 +86,22 @@
             this.treeView.Size = new System.Drawing.Size(1241, 501);
             this.treeView.TabIndex = 8;
             // 
+            // buttonExportPdf
+            // 
+            this.buttonExportPdf.Location = new System.Drawing.Point(623, 28);
+            this.buttonExportPdf.Name = "buttonExportPdf";
+            this.buttonExportPdf.Size = new System.Drawing.Size(75, 23);
+            this.buttonExportPdf.TabIndex = 9;
+            this.buttonExportPdf.Text = "Export Pdf";
+            this.buttonExportPdf.UseVisualStyleBackColor = true;
+            this.buttonExportPdf.Click += new System.EventHandler(this.buttonExportPdf_Click);
+            // 
             // Reports
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 591);
+            this.Controls.Add(this.buttonExportPdf);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.buttonReport);
             this.Controls.Add(this.label2);
@@ -111,5 +123,6 @@
         private System.Windows.Forms.DateTimePicker endDate;
         private System.Windows.Forms.Button buttonReport;
         private System.Windows.Forms.TreeView treeView;
+        private System.Windows.Forms.Button buttonExportPdf;
     }
 }

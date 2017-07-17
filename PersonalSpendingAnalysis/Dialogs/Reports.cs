@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Globalization;
+using System;
+using System.Diagnostics;
+using System.IO;
+using PdfSharp;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
+using PdfSharp.Drawing.Layout;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -65,6 +73,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                     foreach (var searchString in searchStrings.Split(',').ToList())
                     {
+                        
                         var subCatValue = transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory==searchString )
                             .Sum(x => (Decimal?)x.amount);
@@ -76,7 +85,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                         foreach (var transaction in transactionsInSubcategory)
                         {
-                            var transactionString = transaction.transactionDate + " " + transaction.Notes + " " + transaction.amount;
+                            var transactionString = transaction.transactionDate.ToShortDateString() + " " + transaction.Notes + " " + transaction.amount;
                             var transactionNode = new TreeNode(transactionString);
                             subCategoryNode.Nodes.Add(transactionNode);
                         }
@@ -87,7 +96,8 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                     foreach (var subCategory in subCategories.OrderBy(x=>x.value))
                     {
-                        yearNode.Nodes.Add(subCategory.treeNode);
+                        if (subCategory.treeNode.Nodes.Count > 0)
+                            yearNode.Nodes.Add(subCategory.treeNode);
                     }
 
 
@@ -108,6 +118,66 @@ namespace PersonalSpendingAnalysis.Dialogs
             var startDate = context.Transaction.Min(x => x.transactionDate);
             this.endDate.Value = DateTime.Today;
             this.startDate.Value = startDate;
+        }
+
+        private void buttonExportPdf_Click(object sender, EventArgs e)
+        {
+            var exportPdfDlg = new SaveFileDialog();
+            exportPdfDlg.Filter = "PDF Files | *.pdf";
+            exportPdfDlg.Title = "Enter name of PDF File to export";
+            DialogResult result = exportPdfDlg.ShowDialog();
+            if (result == DialogResult.OK) // Test result.
+            {
+                makePdf(treeView.Nodes, exportPdfDlg.FileName);
+            }
+                
+        }
+
+
+        private void makePdf(TreeNodeCollection nodes, string filename)
+        {
+            List<string> s = new List<string>();
+            string spaces = "";
+            walkTree(nodes, spaces, ref s);
+
+            var pagesize = 70;
+            var numberOfPages = (int)(s.Count / pagesize) +1;
+
+            PdfDocument document = new PdfDocument();
+            XFont font = new XFont("Arial", 8, XFontStyle.Regular);
+
+            for (var pageNum = 0; pageNum < numberOfPages; pageNum++)
+            {
+                var numberOfRows = pagesize;
+                if (((pageNum * pagesize)+ pagesize) > s.Count)
+                    numberOfRows = s.Count % pagesize;
+                string text = String.Join("\r\n", s.GetRange(pageNum* pagesize, numberOfRows));
+
+                PdfPage page = document.AddPage();
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+                XTextFormatter tf = new XTextFormatter(gfx);
+
+                XRect rect = new XRect(20, 50, 550, 850);
+                gfx.DrawRectangle(XBrushes.White, rect);
+                tf.Alignment = XParagraphAlignment.Left;
+                tf.DrawString(text, font, XBrushes.Black, rect, XStringFormats.TopLeft);
+            }
+
+            document.Save(filename);
+            Process.Start(filename);
+     
+        }
+
+        private void walkTree(TreeNodeCollection nodes, string spaces, ref List<string> s)
+        {
+            spaces = spaces + "    ";
+
+            foreach(TreeNode node in nodes)
+            {
+                s.Add(spaces+node.Text);
+                if (node.Nodes.Count>0)
+                    walkTree(node.Nodes, spaces, ref s);
+            }
         }
     }
 }

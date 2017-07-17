@@ -62,3 +62,9 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\Per
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AddSearchStringToCategory.resources
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.ManuallyAssignCategory.resources
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csprojResolveAssemblyReference.cache
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.Charting.dll
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.dll
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.xml
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.Charting.xml
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.resources.dll
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.Charting.resources.dll
