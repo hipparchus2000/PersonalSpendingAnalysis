@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Globalization;
+using PersonalSpendingAnalysis.Services;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -225,20 +226,7 @@ namespace PersonalSpendingAnalysis.Dialogs
         {
             style = SeriesChartType.Pie;
 
-            var context = new PersonalSpendingAnalysisRepo();
-            var transactions = context.Transaction.Include("Category")
-                .Where(x => (x.transactionDate > this.startDate.Value)
-                && (x.transactionDate < this.endDate.Value)
-                && (this.showDebitsOnly.Checked && x.amount < 0)
-                );
-            var categories = transactions
-                .GroupBy(x => new { CategoryName = x.Category.Name })
-                .Select(x => new {
-                    CategoryName = x.Key.CategoryName,
-                    Amount = -1 * x.Sum(y => y.amount)
-                }).OrderByDescending(x => x.Amount)
-                    .ToList();
-
+            var categories = Queries.GetCategoryTotals(this.startDate.Value, this.endDate.Value, this.showDebitsOnly.Checked);
             var total = categories.Sum(x => x.Amount);
 
             this.chart.Series.Clear();

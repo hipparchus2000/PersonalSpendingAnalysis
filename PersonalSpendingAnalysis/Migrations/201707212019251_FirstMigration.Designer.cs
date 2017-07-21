@@ -7,13 +7,13 @@ namespace PersonalSpendingAnalysis.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddedSHA256FieldToTransaction : IMigrationMetadata
+    public sealed partial class FirstMigration : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedSHA256FieldToTransaction));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(FirstMigration));
         
         string IMigrationMetadata.Id
         {
-            get { return "201707011310517_AddedSHA256FieldToTransaction"; }
+            get { return "201707212019251_FirstMigration"; }
         }
         
         string IMigrationMetadata.Source

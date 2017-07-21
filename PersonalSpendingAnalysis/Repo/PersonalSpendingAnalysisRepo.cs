@@ -16,6 +16,7 @@ namespace PersonalSpendingAnalysis.Repo
         }
 
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Budget> Budgets { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategorySearchString> CategorySearchStrings { get; set; }
         public DbSet<Import> Imports { get; set; }

@@ -35,6 +35,7 @@
             this.buttonReport = new System.Windows.Forms.Button();
             this.treeView = new System.Windows.Forms.TreeView();
             this.buttonExportPdf = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // startDate
@@ -96,11 +97,19 @@
             this.buttonExportPdf.UseVisualStyleBackColor = true;
             this.buttonExportPdf.Click += new System.EventHandler(this.buttonExportPdf_Click);
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(760, 28);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(432, 23);
+            this.progressBar1.TabIndex = 10;
+            // 
             // Reports
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 591);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.buttonExportPdf);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.buttonReport);
@@ -124,5 +133,6 @@
         private System.Windows.Forms.Button buttonReport;
         private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Button buttonExportPdf;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }

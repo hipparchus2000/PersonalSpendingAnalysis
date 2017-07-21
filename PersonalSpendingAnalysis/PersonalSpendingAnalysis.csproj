@@ -72,6 +72,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\BudgetManagerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\BudgetManagerDialog.Designer.cs">
+      <DependentUpon>BudgetManagerDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\ManuallyAssignCategory.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -83,12 +89,6 @@
     </Compile>
     <Compile Include="Dialogs\AddSearchStringToCategory.Designer.cs">
       <DependentUpon>AddSearchStringToCategory.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\BudgetManager.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\BudgetManager.Designer.cs">
-      <DependentUpon>BudgetManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\AccountManager .cs">
       <SubType>Form</SubType>
@@ -120,11 +120,14 @@
     <Compile Include="Dialogs\ImportDialog.Designer.cs">
       <DependentUpon>ImportDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707011310517_AddedSHA256FieldToTransaction.cs" />
-    <Compile Include="Migrations\201707011310517_AddedSHA256FieldToTransaction.Designer.cs">
-      <DependentUpon>201707011310517_AddedSHA256FieldToTransaction.cs</DependentUpon>
+    <Compile Include="Migrations\201707212019251_FirstMigration.cs" />
+    <Compile Include="Migrations\201707212019251_FirstMigration.Designer.cs">
+      <DependentUpon>201707212019251_FirstMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\CategoryMonthlyAverage.cs" />
+    <Compile Include="Models\BudgetModel.cs" />
+    <Compile Include="Models\CategoryTotal.cs" />
     <Compile Include="PersonalSpendingAnalysis.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,19 +137,23 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repo\Entities\Account.cs" />
+    <Compile Include="Repo\Entities\Budget.cs" />
     <Compile Include="Repo\Entities\Import.cs" />
     <Compile Include="Repo\Entities\Category.cs" />
     <Compile Include="Repo\Entities\CategorySearchString.cs" />
     <Compile Include="Repo\Entities\Transaction.cs" />
     <Compile Include="Repo\PersonalSpendingAnalysisRepo.cs" />
+    <Compile Include="Services\Aggregates.cs" />
+    <Compile Include="Services\ImportsAndExports.cs" />
+    <Compile Include="Services\Queries.cs" />
+    <EmbeddedResource Include="Dialogs\BudgetManagerDialog.resx">
+      <DependentUpon>BudgetManagerDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ManuallyAssignCategory.resx">
       <DependentUpon>ManuallyAssignCategory.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\AddSearchStringToCategory.resx">
       <DependentUpon>AddSearchStringToCategory.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\BudgetManager.resx">
-      <DependentUpon>BudgetManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\AccountManager .resx">
       <DependentUpon>AccountManager .cs</DependentUpon>
@@ -163,8 +170,8 @@
     <EmbeddedResource Include="Dialogs\ImportDialog.resx">
       <DependentUpon>ImportDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707011310517_AddedSHA256FieldToTransaction.resx">
-      <DependentUpon>201707011310517_AddedSHA256FieldToTransaction.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201707212019251_FirstMigration.resx">
+      <DependentUpon>201707212019251_FirstMigration.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PersonalSpendingAnalysis.resx">
       <DependentUpon>PersonalSpendingAnalysis.cs</DependentUpon>

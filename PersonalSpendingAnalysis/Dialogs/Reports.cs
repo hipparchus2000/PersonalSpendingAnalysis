@@ -18,6 +18,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using PdfSharp.Drawing.Layout;
+using System.Threading;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -36,7 +37,7 @@ namespace PersonalSpendingAnalysis.Dialogs
             public Decimal? value { get; set; }
         }
 
-        private void buttonReport_Click(object sender, EventArgs e)
+        private void runReport()
         {
             treeView.Nodes.Clear();
 
@@ -51,35 +52,42 @@ namespace PersonalSpendingAnalysis.Dialogs
                 );
             var categories = transactions
                 .GroupBy(x => new { CategoryName = x.Category.Name })
-                .Select(x => new {
+                .Select(x => new
+                {
                     CategoryName = x.Key.CategoryName,
                     Amount = x.Sum(y => y.amount)
                 }).OrderByDescending(x => x.Amount)
                     .ToList();
 
+            var count = 0;
+
             foreach (var category in categories)
             {
+                count++;
+                decimal percent = (decimal)count / (decimal)transactions.Count();
+                UpdateProgressBar(percent);
+
                 var node = new TreeNode(category.CategoryName + " = " + category.Amount);
 
                 foreach (var year in yearList)
                 {
-                    var value = transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount );
+                    var value = transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount);
                     var yearNode = new TreeNode(year + " = " + value);
 
-                    var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString+",manually assigned";
+                    var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString + ",manually assigned";
 
 
                     var subCategories = new List<SortableTreeNode>();
 
                     foreach (var searchString in searchStrings.Split(',').ToList())
                     {
-                        
+
                         var subCatValue = transactions
-                            .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory==searchString )
+                            .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString)
                             .Sum(x => (Decimal?)x.amount);
-                        
-                        var subCategoryNode = new TreeNode( searchString + " " + subCatValue );
-                        
+
+                        var subCategoryNode = new TreeNode(searchString + " " + subCatValue);
+
                         var transactionsInSubcategory = transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString).ToArray();
 
@@ -89,12 +97,12 @@ namespace PersonalSpendingAnalysis.Dialogs
                             var transactionNode = new TreeNode(transactionString);
                             subCategoryNode.Nodes.Add(transactionNode);
                         }
-                        
+
                         subCategories.Add(new SortableTreeNode { treeNode = subCategoryNode, value = subCatValue });
 
                     }
 
-                    foreach (var subCategory in subCategories.OrderBy(x=>x.value))
+                    foreach (var subCategory in subCategories.OrderBy(x => x.value))
                     {
                         if (subCategory.treeNode.Nodes.Count > 0)
                             yearNode.Nodes.Add(subCategory.treeNode);
@@ -105,15 +113,39 @@ namespace PersonalSpendingAnalysis.Dialogs
                 }
 
                 treeView.Nodes.Add(node);
-
             }
 
+            buttonReport.Enabled = true;
+            buttonExportPdf.Enabled = true;
 
+        }
+
+        private void UpdateProgressBar(decimal percent)
+        {
+            progressBar1.Value = (int)percent;
+            if (percent==100.0m)
+            {
+                progressBar1.Visible = false;
+            }
+        }
+
+        private void buttonReport_Click(object sender, EventArgs e)
+        {
+            progressBar1.Visible = true;
+            buttonReport.Enabled = false;
+            buttonExportPdf.Enabled = false;
+            //Thread thread = new Thread(runReport);
+            //thread.IsBackground = true;
+            //thread.Start();
+            //need to separate work from GUI for this.
+            runReport();
 
         }
 
         private void Reports_Load(object sender, EventArgs e)
         {
+            progressBar1.Visible = false;
+
             var context = new PersonalSpendingAnalysisRepo();
             var startDate = context.Transaction.Min(x => x.transactionDate);
             this.endDate.Value = DateTime.Today;
