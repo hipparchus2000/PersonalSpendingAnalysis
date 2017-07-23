@@ -72,7 +72,8 @@ namespace PersonalSpendingAnalysis.Dialogs
                 foreach (var year in yearList)
                 {
                     var value = transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount);
-                    var yearNode = new TreeNode(year + " = " + value);
+                    decimal? permonth = (value / 12.0m);
+                    var yearNode = new TreeNode(year + " = " + value + (permonth==null?"":"    (per month = " + ((decimal)permonth).ToString("#.##") + " ) ") );
 
                     var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString + ",manually assigned";
 
@@ -87,7 +88,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                             .Sum(x => (Decimal?)x.amount);
 
                         var subCategoryNode = new TreeNode(searchString + " " + subCatValue);
-
+                        
                         var transactionsInSubcategory = transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString).ToArray();
 
@@ -97,7 +98,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                             var transactionNode = new TreeNode(transactionString);
                             subCategoryNode.Nodes.Add(transactionNode);
                         }
-
+                        
                         subCategories.Add(new SortableTreeNode { treeNode = subCategoryNode, value = subCatValue });
 
                     }
@@ -170,12 +171,23 @@ namespace PersonalSpendingAnalysis.Dialogs
         {
             List<string> s = new List<string>();
             string spaces = "";
-            walkTree(nodes, spaces, ref s);
+            int indentLevel = 0;
+            int maxIndentLevel = 5;
+
+            var includeTransactions = this.includeTransactions.Checked;
+            if  (!includeTransactions)
+            {
+                maxIndentLevel = 2;
+            } 
+            
+            walkTree(nodes, spaces, ref s, indentLevel, maxIndentLevel);
 
             var pagesize = 70;
             var numberOfPages = (int)(s.Count / pagesize) +1;
 
             PdfDocument document = new PdfDocument();
+            XFont categoryfont = new XFont("Arial", 8, XFontStyle.Bold);
+            XFont yearfont = new XFont("Arial", 8, XFontStyle.Underline);
             XFont font = new XFont("Arial", 8, XFontStyle.Regular);
 
             for (var pageNum = 0; pageNum < numberOfPages; pageNum++)
@@ -200,15 +212,18 @@ namespace PersonalSpendingAnalysis.Dialogs
      
         }
 
-        private void walkTree(TreeNodeCollection nodes, string spaces, ref List<string> s)
+        const String indent = "    ";
+
+        private void walkTree(TreeNodeCollection nodes, string spaces, ref List<string> s, int indentLevel, int maxIndentLevel)
         {
-            spaces = spaces + "    ";
+            spaces = spaces + indent;
+            indentLevel++;
 
             foreach(TreeNode node in nodes)
             {
                 s.Add(spaces+node.Text);
-                if (node.Nodes.Count>0)
-                    walkTree(node.Nodes, spaces, ref s);
+                if (node.Nodes.Count>0 && indentLevel<=maxIndentLevel)
+                    walkTree(node.Nodes, spaces, ref s, indentLevel, maxIndentLevel);
             }
         }
     }
