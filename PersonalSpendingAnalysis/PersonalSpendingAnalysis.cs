@@ -422,5 +422,11 @@ namespace PersonalSpendingAnalysis
         {
 
         }
+
+        private void buttonWebSync_Click(object sender, EventArgs e)
+        {
+            var dlg = new SyncToWeb();
+            dlg.ShowDialog();
+        }
     }
 }

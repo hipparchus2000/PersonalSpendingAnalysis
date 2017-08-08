@@ -68,3 +68,6 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\Per
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.resources.dll
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.Charting.resources.dll
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Migrations.FirstMigration.resources
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.dll
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.xml
+C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.SyncToWeb.resources

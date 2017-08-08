@@ -57,6 +57,10 @@
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net451\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -120,6 +124,12 @@
     <Compile Include="Dialogs\ImportDialog.Designer.cs">
       <DependentUpon>ImportDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SyncToWeb.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SyncToWeb.Designer.cs">
+      <DependentUpon>SyncToWeb.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201707212019251_FirstMigration.cs" />
     <Compile Include="Migrations\201707212019251_FirstMigration.Designer.cs">
       <DependentUpon>201707212019251_FirstMigration.cs</DependentUpon>
@@ -128,6 +138,7 @@
     <Compile Include="Models\CategoryMonthlyAverage.cs" />
     <Compile Include="Models\BudgetModel.cs" />
     <Compile Include="Models\CategoryTotal.cs" />
+    <Compile Include="Models\TransactionModel.cs" />
     <Compile Include="PersonalSpendingAnalysis.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,6 +180,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ImportDialog.resx">
       <DependentUpon>ImportDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SyncToWeb.resx">
+      <DependentUpon>SyncToWeb.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201707212019251_FirstMigration.resx">
       <DependentUpon>201707212019251_FirstMigration.cs</DependentUpon>

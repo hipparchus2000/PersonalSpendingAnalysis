@@ -44,6 +44,7 @@
             this.buttonExportAllToCsv = new System.Windows.Forms.Button();
             this.buttonImportAllFromCsv = new System.Windows.Forms.Button();
             this.buttonReports = new System.Windows.Forms.Button();
+            this.buttonWebSync = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.transactionsGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -155,7 +156,7 @@
             // 
             // buttonCharts
             // 
-            this.buttonCharts.Location = new System.Drawing.Point(661, 2);
+            this.buttonCharts.Location = new System.Drawing.Point(523, 2);
             this.buttonCharts.Name = "buttonCharts";
             this.buttonCharts.Size = new System.Drawing.Size(112, 23);
             this.buttonCharts.TabIndex = 10;
@@ -165,7 +166,7 @@
             // 
             // buttonExportAllToCsv
             // 
-            this.buttonExportAllToCsv.Location = new System.Drawing.Point(924, 2);
+            this.buttonExportAllToCsv.Location = new System.Drawing.Point(797, 2);
             this.buttonExportAllToCsv.Name = "buttonExportAllToCsv";
             this.buttonExportAllToCsv.Size = new System.Drawing.Size(113, 23);
             this.buttonExportAllToCsv.TabIndex = 11;
@@ -175,7 +176,7 @@
             // 
             // buttonImportAllFromCsv
             // 
-            this.buttonImportAllFromCsv.Location = new System.Drawing.Point(1043, 2);
+            this.buttonImportAllFromCsv.Location = new System.Drawing.Point(916, 2);
             this.buttonImportAllFromCsv.Name = "buttonImportAllFromCsv";
             this.buttonImportAllFromCsv.Size = new System.Drawing.Size(120, 23);
             this.buttonImportAllFromCsv.TabIndex = 12;
@@ -184,7 +185,7 @@
             // 
             // buttonReports
             // 
-            this.buttonReports.Location = new System.Drawing.Point(779, 2);
+            this.buttonReports.Location = new System.Drawing.Point(641, 2);
             this.buttonReports.Name = "buttonReports";
             this.buttonReports.Size = new System.Drawing.Size(112, 23);
             this.buttonReports.TabIndex = 13;
@@ -192,11 +193,22 @@
             this.buttonReports.UseVisualStyleBackColor = true;
             this.buttonReports.Click += new System.EventHandler(this.buttonReports_Click);
             // 
+            // buttonWebSync
+            // 
+            this.buttonWebSync.Location = new System.Drawing.Point(1043, 2);
+            this.buttonWebSync.Name = "buttonWebSync";
+            this.buttonWebSync.Size = new System.Drawing.Size(120, 23);
+            this.buttonWebSync.TabIndex = 14;
+            this.buttonWebSync.Text = "Web Sync";
+            this.buttonWebSync.UseVisualStyleBackColor = true;
+            this.buttonWebSync.Click += new System.EventHandler(this.buttonWebSync_Click);
+            // 
             // PersonalSpendingAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1175, 430);
+            this.Controls.Add(this.buttonWebSync);
             this.Controls.Add(this.buttonReports);
             this.Controls.Add(this.buttonImportAllFromCsv);
             this.Controls.Add(this.buttonExportAllToCsv);
@@ -235,6 +247,7 @@
         private System.Windows.Forms.Button buttonExportAllToCsv;
         private System.Windows.Forms.Button buttonImportAllFromCsv;
         private System.Windows.Forms.Button buttonReports;
+        private System.Windows.Forms.Button buttonWebSync;
     }
 }
 
