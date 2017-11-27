@@ -444,24 +444,11 @@ namespace PersonalSpendingAnalysis
             {
                 var fileText = File.ReadAllText(dlg.FileName);
                 var import = JsonConvert.DeserializeObject<Exportable>(fileText);
-                foreach (var transaction in import.transactions)
-                {
-                    if (context.Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
-                    {
-                        //import the transaction
-                        context.Transaction.Add(transaction);
-                        context.SaveChanges();
-                        numberOfNewTransactions++;
-                    }
-                    else
-                    {
-                        //transaction is already here
-                        numberOfDuplicateTransactions++;
-                    }
-                }
+
+                //do the categories first to avoid foreign key issues
                 foreach (var category in import.categories)
                 {
-                    if (context.Categories.Contains(category))
+                    if (context.Categories.SingleOrDefault(x => x.Id == category.Id) != null)
                     {
                         numberOfDuplicateCategories++;
                     }
@@ -472,6 +459,33 @@ namespace PersonalSpendingAnalysis
                         numberOfNewCategories++;
                     }
                 }
+
+                foreach (var transaction in import.transactions)
+                {
+                    if (context.Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
+                    {
+                        transaction.Category = null;
+                        //import the transaction
+                        context.Transaction.Add(transaction);
+                        context.SaveChanges();
+                        numberOfNewTransactions++;
+                    }
+                    else
+                    {
+                        //transaction is already here
+                        //todo do something sensible like concatenate and unique the search strings
+                        numberOfDuplicateTransactions++;
+                    }
+                }
+
+                refresh();
+
+                MessageBox.Show("Import complete "
+                    + numberOfDuplicateTransactions + " duplicate transactions "
+                    + numberOfNewTransactions + " new transactions "
+                    + numberOfDuplicateCategories + " duplicate categories "
+                    + numberOfNewCategories + " new categories"
+                    );
             }
         }
     }

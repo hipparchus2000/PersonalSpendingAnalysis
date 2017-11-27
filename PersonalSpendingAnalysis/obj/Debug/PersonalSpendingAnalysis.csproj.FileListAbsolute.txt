@@ -106,3 +106,4 @@ C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj
 C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csproj.CoreCompileInputs.cache
 C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.exe
 C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.pdb
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csprojResolveAssemblyReference.cache
