@@ -398,13 +398,13 @@ namespace PersonalSpendingAnalysis
             exportable.transactions = context.Transaction.ToList();
             exportable.categories = context.Categories.ToList();
             
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Title = "Enter name of file to save as";
-            DialogResult result = dlg.ShowDialog();
+            var dlg = new SaveFileDialog();
+            dlg.Title = "Enter name of json file to save as";
+            var result = dlg.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Converters.Add(new JavaScriptDateTimeConverter());
+                var serializer = new JsonSerializer();
+                serializer.Converters.Add(new IsoDateTimeConverter());
                 serializer.NullValueHandling = NullValueHandling.Ignore;
 
                 using (StreamWriter sw = new StreamWriter(dlg.FileName))
@@ -427,6 +427,53 @@ namespace PersonalSpendingAnalysis
         {
             var dlg = new SyncToWeb();
             dlg.ShowDialog();
+        }
+
+        private void buttonImportAllFromCsv_Click(object sender, EventArgs e)
+        {
+            var context = new PersonalSpendingAnalysisRepo();
+
+            var numberOfDuplicateTransactions = 0;
+            var numberOfNewTransactions = 0;
+            var numberOfDuplicateCategories = 0;
+            var numberOfNewCategories = 0;
+
+            var dlg = new OpenFileDialog();
+            dlg.Title = "Enter name of json file to open";
+            var result = dlg.ShowDialog();
+            if (result == DialogResult.OK) // Test result.
+            {
+                var fileText = File.ReadAllText(dlg.FileName);
+                var import = JsonConvert.DeserializeObject<Exportable>(fileText);
+                foreach (var transaction in import.transactions)
+                {
+                    if (context.Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
+                    {
+                        //import the transaction
+                        context.Transaction.Add(transaction);
+                        context.SaveChanges();
+                        numberOfNewTransactions++;
+                    }
+                    else
+                    {
+                        //transaction is already here
+                        numberOfDuplicateTransactions++;
+                    }
+                }
+                foreach (var category in import.categories)
+                {
+                    if (context.Categories.Contains(category))
+                    {
+                        numberOfDuplicateCategories++;
+                    }
+                    else
+                    {
+                        context.Categories.Add(category);
+                        context.SaveChanges();
+                        numberOfNewCategories++;
+                    }
+                }
+            }
         }
     }
 }

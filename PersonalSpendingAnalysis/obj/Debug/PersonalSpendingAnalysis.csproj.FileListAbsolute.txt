@@ -71,3 +71,38 @@ C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\Per
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.dll
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.xml
 C:\Users\jeff\Documents\Visual Studio 2015\Projects\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.SyncToWeb.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PersonalSpendingAnalysis.exe.config
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PersonalSpendingAnalysis.exe
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PersonalSpendingAnalysis.pdb
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\CsvHelper.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\EntityFramework.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.Charting.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\CsvHelper.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\EntityFramework.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\Newtonsoft.Json.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\PdfSharp.Charting.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\RestSharp.xml
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.resources.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\bin\Debug\de\PdfSharp.Charting.resources.dll
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.BudgetManager.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.ManuallyAssignCategory.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AddSearchStringToCategory.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.AccountManager.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.CategoryManager.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.Reports.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.Charts.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.ImportDialog.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Dialogs.SyncToWeb.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Migrations.FirstMigration.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.PersonalSpendingAnalysis.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.Properties.Resources.resources
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csproj.GenerateResource.Cache
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.exe
+C:\Users\User\source\repos\PersonalSpendingAnalysis\PersonalSpendingAnalysis\obj\Debug\PersonalSpendingAnalysis.pdb

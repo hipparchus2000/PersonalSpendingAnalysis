@@ -182,6 +182,7 @@
             this.buttonImportAllFromCsv.TabIndex = 12;
             this.buttonImportAllFromCsv.Text = "Import From PSA Json";
             this.buttonImportAllFromCsv.UseVisualStyleBackColor = true;
+            this.buttonImportAllFromCsv.Click += new System.EventHandler(this.buttonImportAllFromCsv_Click);
             // 
             // buttonReports
             // 
