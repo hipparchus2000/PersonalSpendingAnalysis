@@ -403,17 +403,16 @@ namespace PersonalSpendingAnalysis
             var result = dlg.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                var serializer = new JsonSerializer();
-                serializer.Converters.Add(new IsoDateTimeConverter());
-                serializer.NullValueHandling = NullValueHandling.Ignore;
-
-                using (StreamWriter sw = new StreamWriter(dlg.FileName))
-                using (JsonWriter writer = new JsonTextWriter(sw))
+                var settings = new JsonSerializerSettings
                 {
-                    serializer.Serialize(writer, exportable);
-                }
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat                    
+                };
+                
+                string json = JsonConvert.SerializeObject(exportable, settings);
+                File.WriteAllText(dlg.FileName, json);
             }
-            
             
 
         }
