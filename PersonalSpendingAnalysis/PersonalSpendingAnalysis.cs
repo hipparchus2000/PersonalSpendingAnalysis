@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using PersonalSpendingAnalysis.Repo.Entities;
 using System.IO;
 using Newtonsoft.Json.Converters;
+using System.Threading;
 
 namespace PersonalSpendingAnalysis
 {
@@ -242,45 +243,75 @@ namespace PersonalSpendingAnalysis
             var context = new PersonalSpendingAnalysisRepo();
             var categories = context.Categories;
             var datarows = context.Transaction;
-            
-            var force = true;
+            var totalCount = datarows.Count();
 
-            foreach (var datarow in datarows)
-            {
-                if (datarow.ManualCategory != true)
+            Thread backgroundThread = new Thread(
+                new ThreadStart(() =>
                 {
-                    if (force == true)
-                    {
-                        datarow.CategoryId = null;
-                    }
+                    int currentCount = 0;
+                 
+                    var force = true;
 
-                    foreach (var category in categories)
+                    foreach (var datarow in datarows)
                     {
-                        if (datarow.CategoryId == null)
-                        {
-                            if (!String.IsNullOrEmpty(category.SearchString))
+                        currentCount++;
+                        progressBar1.BeginInvoke(
+                            new Action(() =>
                             {
-                                var searchStrings = category.SearchString.ToLower().Split(',');
-                                foreach (var searchString in searchStrings)
+                                progressBar1.Value = (currentCount / totalCount ) * 100;
+                            }
+                        ));
+
+                        if (datarow.ManualCategory != true)
+                        {
+                            if (force == true)
+                            {
+                                datarow.CategoryId = null;
+                            }
+
+                            foreach (var category in categories)
+                            {
+                                if (datarow.CategoryId == null)
                                 {
-                                    var trimmedSearchString = searchString.TrimStart().TrimEnd();
-                                    if (datarow.Notes.ToLower().Contains(trimmedSearchString))
+                                    if (!String.IsNullOrEmpty(category.SearchString))
                                     {
-                                        datarow.CategoryId = category.Id;
-                                        datarow.SubCategory = trimmedSearchString;
+                                        var searchStrings = category.SearchString.ToLower().Split(',');
+                                        foreach (var searchString in searchStrings)
+                                        {
+                                            var trimmedSearchString = searchString.TrimStart().TrimEnd();
+                                            if (datarow.Notes.ToLower().Contains(trimmedSearchString))
+                                            {
+                                                datarow.CategoryId = category.Id;
+                                                datarow.SubCategory = trimmedSearchString;
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        else
+                        {
+                            datarow.SubCategory = "manually assigned";
+                        }
                     }
-                } else
-                {
-                    datarow.SubCategory = "manually assigned";
-                }
-            }
 
-            context.SaveChanges();
-            refresh();
+                    context.SaveChanges();
+                    
+
+
+                    MessageBox.Show("Autocategorization completed!");
+                    progressBar1.BeginInvoke(
+                            new Action(() =>
+                            {
+                                progressBar1.Value = 0;
+                                refresh();
+                            }
+                        ));
+                }
+            ));
+
+            backgroundThread.Start();
+
         }
 
         private void refresh()
@@ -393,25 +424,34 @@ namespace PersonalSpendingAnalysis
 
         private void buttonExportAllToCsv_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var exportable = new Exportable();
-            exportable.transactions = context.Transaction.ToList();
-            exportable.categories = context.Categories.ToList();
-            
             var dlg = new SaveFileDialog();
             dlg.Title = "Enter name of json file to save as";
             var result = dlg.ShowDialog();
-            if (result == DialogResult.OK) // Test result.
+            if (result == DialogResult.OK) 
             {
-                var settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                    DateFormatHandling = DateFormatHandling.IsoDateFormat                    
-                };
-                
-                string json = JsonConvert.SerializeObject(exportable, settings);
-                File.WriteAllText(dlg.FileName, json);
+                Thread backgroundThread = new Thread(
+                    new ThreadStart(() =>
+                    {
+                        var context = new PersonalSpendingAnalysisRepo();
+                        var exportable = new Exportable();
+                        exportable.transactions = context.Transaction.ToList();
+                        exportable.categories = context.Categories.ToList();
+
+                        var settings = new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore,
+                            MissingMemberHandling = MissingMemberHandling.Ignore,
+                            DateFormatHandling = DateFormatHandling.IsoDateFormat
+                        };
+
+                        string json = JsonConvert.SerializeObject(exportable, settings);
+                        File.WriteAllText(dlg.FileName, json);
+
+                        MessageBox.Show("Export completed!");
+                    }
+                ));
+                backgroundThread.Start();
+
             }
             
 
@@ -493,6 +533,11 @@ namespace PersonalSpendingAnalysis
                     + numberOfNewCategories + " new categories"
                     );
             }
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

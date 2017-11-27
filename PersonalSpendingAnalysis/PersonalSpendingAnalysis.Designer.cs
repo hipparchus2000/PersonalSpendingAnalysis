@@ -45,6 +45,7 @@
             this.buttonImportAllFromCsv = new System.Windows.Forms.Button();
             this.buttonReports = new System.Windows.Forms.Button();
             this.buttonWebSync = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.transactionsGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -204,11 +205,20 @@
             this.buttonWebSync.UseVisualStyleBackColor = true;
             this.buttonWebSync.Click += new System.EventHandler(this.buttonWebSync_Click);
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(13, 400);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(536, 23);
+            this.progressBar1.TabIndex = 15;
+            this.progressBar1.Click += new System.EventHandler(this.progressBar1_Click);
+            // 
             // PersonalSpendingAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1175, 430);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.buttonWebSync);
             this.Controls.Add(this.buttonReports);
             this.Controls.Add(this.buttonImportAllFromCsv);
@@ -249,6 +259,7 @@
         private System.Windows.Forms.Button buttonImportAllFromCsv;
         private System.Windows.Forms.Button buttonReports;
         private System.Windows.Forms.Button buttonWebSync;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 
