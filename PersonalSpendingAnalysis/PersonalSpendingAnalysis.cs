@@ -450,7 +450,14 @@ namespace PersonalSpendingAnalysis
                 {
                     if (context.Categories.SingleOrDefault(x => x.Id == category.Id) != null)
                     {
+                        //this method aggregates search strings - todo perhaps give user the choice to aggregate or
+                        //replace or keep search strings.
                         numberOfDuplicateCategories++;
+                        var oldCategory = context.Categories.Single(x => x.Id == category.Id);
+                        var searchStrings = oldCategory.SearchString.Split(',').ToList();
+                        searchStrings.AddRange(category.SearchString.Split(','));
+                        var uniqueSearchStrings = searchStrings.Distinct();
+                        oldCategory.SearchString = string.Join(",", uniqueSearchStrings);                        
                     }
                     else
                     {
@@ -473,7 +480,6 @@ namespace PersonalSpendingAnalysis
                     else
                     {
                         //transaction is already here
-                        //todo do something sensible like concatenate and unique the search strings
                         numberOfDuplicateTransactions++;
                     }
                 }
