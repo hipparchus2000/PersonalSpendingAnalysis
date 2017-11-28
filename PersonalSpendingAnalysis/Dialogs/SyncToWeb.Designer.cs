@@ -35,6 +35,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.UsernameTextBox = new System.Windows.Forms.TextBox();
             this.passwordTextBox = new System.Windows.Forms.TextBox();
+            this.deleteExistingTransactionsCheckbox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // buttonSyncToWeb
@@ -96,11 +97,22 @@
             this.passwordTextBox.Size = new System.Drawing.Size(159, 20);
             this.passwordTextBox.TabIndex = 7;
             // 
+            // deleteExistingTransactionsCheckbox
+            // 
+            this.deleteExistingTransactionsCheckbox.AutoSize = true;
+            this.deleteExistingTransactionsCheckbox.Location = new System.Drawing.Point(485, 26);
+            this.deleteExistingTransactionsCheckbox.Name = "deleteExistingTransactionsCheckbox";
+            this.deleteExistingTransactionsCheckbox.Size = new System.Drawing.Size(160, 17);
+            this.deleteExistingTransactionsCheckbox.TabIndex = 8;
+            this.deleteExistingTransactionsCheckbox.Text = "Delete Existing Transactions";
+            this.deleteExistingTransactionsCheckbox.UseVisualStyleBackColor = true;
+            // 
             // SyncToWeb
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(728, 405);
+            this.Controls.Add(this.deleteExistingTransactionsCheckbox);
             this.Controls.Add(this.passwordTextBox);
             this.Controls.Add(this.UsernameTextBox);
             this.Controls.Add(this.label3);
@@ -124,5 +136,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox UsernameTextBox;
         private System.Windows.Forms.TextBox passwordTextBox;
+        private System.Windows.Forms.CheckBox deleteExistingTransactionsCheckbox;
     }
 }
