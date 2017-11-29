@@ -67,8 +67,13 @@ namespace PersonalSpendingAnalysis.Dialogs
             status.AppendText("userId: "+userId+"\r\n");
 
             var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.ToList();
-            var transactions = context.Transaction.Select(x => new TransactionModel
+            var localCategories = context.Categories.Select(x=> new {
+                Id = x.Id,
+                Name = x.Name,
+                SearchString = x.SearchString,
+                userId = userId
+            }).ToList();
+            var localTransactions = context.Transaction.Select(x => new TransactionModel
             {
                 Id = x.Id,
                 amount = x.amount,
@@ -86,6 +91,136 @@ namespace PersonalSpendingAnalysis.Dialogs
             Thread backgroundThread = new Thread(
                     new ThreadStart(() =>
                     {
+                        //categories first to make sure primary keys are ok
+                        //GET CATEGORIES
+                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+                        request = new RestRequest(Method.GET);
+                        request.AddHeader("jwt", jwt);
+                        request.AddHeader("userId", userId);
+                        request.AddHeader("content-type", "application/json");
+                        response = client.Execute(request);
+                        if(response.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            status.BeginInvoke(
+                            new Action(() =>
+                            {
+                                status.AppendText("\r\nError encountered reading categories " + response.ErrorMessage + " \r\n");
+                            })
+                        );
+                        }
+                        var remoteCategories = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
+                        status.BeginInvoke(
+                            new Action(() =>
+                            {
+                                status.AppendText("\r\nsuccessfully downloaded " + remoteCategories.Count + " categories\r\n");
+                            })
+                        );
+
+
+                        var successfullyDeleted = 0;
+                        var failedDelete = 0;
+
+                        if (deleteExistingTransactions)
+                        {
+                            foreach (var remoteCategory in remoteCategories)
+                            {
+                                client = new RestClient("https://www.talkisbetter.com/api/bankcategorys/" + remoteCategory._id);
+                                request = new RestRequest(Method.DELETE);
+                                request.AddHeader("jwt", jwt);
+                                request.AddHeader("userId", userId);
+                                request.AddHeader("content-type", "application/json");
+                                response = client.Execute(request);
+                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    successfullyDeleted++;
+                                    status.BeginInvoke(
+                                        new Action(() =>
+                                        {
+                                            status.AppendText(".");
+                                        })
+                                    );
+                                }
+                                else
+                                {
+                                    failedDelete++;
+                                    status.BeginInvoke(
+                                        new Action(() =>
+                                        {
+                                            status.AppendText("x");
+                                        })
+                                    );
+                                }
+                            }
+
+                        }
+                        status.BeginInvoke(
+                            new Action(() =>
+                            {
+                                status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " remote categories failed to delete " + failedDelete + " remote categories\r\n");
+                            })
+                        );
+
+
+                        //POST EACH NEW CATEGORY
+                        var numberOfCategoriesAdded = 0;
+                        var numberFailedAddCategories = 0;
+                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+                        foreach (var localCategory in localCategories)
+                        {
+                            var matchingCategory = remoteCategories.SingleOrDefault(x => x.Id == localCategory.Id);
+                            if (deleteExistingTransactions || matchingCategory == null)
+                            {
+                                //no remote category for the localCategory
+                                //category.userId = userId;
+                                JsonSerializer serializer = new JsonSerializer();
+                                serializer.Converters.Add(new JavaScriptDateTimeConverter());
+                                serializer.NullValueHandling = NullValueHandling.Ignore;
+
+                                string jsonCategory = JsonConvert.SerializeObject(localCategory, Formatting.Indented);
+                                request = new RestRequest(Method.POST);
+                                request.AddHeader("jwt", jwt);
+                                request.AddHeader("userId", userId);
+                                request.AddHeader("content-type", "application/json");
+                                request.AddParameter("application/json", jsonCategory, ParameterType.RequestBody);
+                                response = client.Execute(request);
+                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    numberOfCategoriesAdded++;
+                                    status.BeginInvoke(
+                                        new Action(() =>
+                                        {
+                                            status.AppendText(".");
+                                        })
+                                    );
+                                }
+                                else
+                                {
+                                    numberFailedAddCategories++;
+                                    status.BeginInvoke(
+                                        new Action(() =>
+                                        {
+                                            status.AppendText("x");
+                                        })
+                                    );
+                                } //end of test Http Response
+                            }
+                            else
+                            {
+                                //existing remote category for the localCategory
+                                //todo merge search strings
+                            }
+                        }
+                        status.BeginInvoke(
+                            new Action(() =>
+                            {
+                                status.AppendText("\r\nsuccessfully added " + numberOfCategoriesAdded + " categories to local db failed to add " + numberFailedAddCategories + " categories \r\n");
+                            })
+                        );
+
+
+
+
+
 
                         //GET TRANSACTIONS
                         client = new RestClient("https://www.talkisbetter.com/api/banks");
@@ -94,22 +229,22 @@ namespace PersonalSpendingAnalysis.Dialogs
                         request.AddHeader("userId", userId);
                         request.AddHeader("content-type", "application/json");
                         response = client.Execute(request);
-                        var myTransactions = JsonConvert.DeserializeObject<dynamic[]>(response.Content);
+                        var remoteTransactions = JsonConvert.DeserializeObject<dynamic[]>(response.Content);
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully read " + myTransactions.Length + " records\r\n");
+                                status.AppendText("\r\nsuccessfully read " + remoteTransactions.Length + " records\r\n");
                             })
                         );
 
-                        var successfullyDeleted = 0;
-                        var failedDelete = 0;
+                        successfullyDeleted = 0;
+                        failedDelete = 0;
 
                         if (deleteExistingTransactions)
                         {
-                            foreach (var transaction in myTransactions)  
+                            foreach (var remoteTransaction in remoteTransactions)  
                             {
-                                client = new RestClient("https://www.talkisbetter.com/api/banks/"+transaction._id);
+                                client = new RestClient("https://www.talkisbetter.com/api/banks/"+ remoteTransaction._id);
                                 request = new RestRequest(Method.DELETE);
                                 request.AddHeader("jwt", jwt);
                                 request.AddHeader("userId", userId);
@@ -141,7 +276,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                             status.BeginInvoke(
                                 new Action(() =>
                                 {
-                                    status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " transactions failed to delete " + failedDelete + " transactions\r\n");
+                                    status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " localTransactions failed to delete " + failedDelete + " localTransactions\r\n");
                                 })
                             );
                         }
@@ -155,17 +290,17 @@ namespace PersonalSpendingAnalysis.Dialogs
                         var numberAdded = 0;
                         var numberFailedAdd = 0;
                         client = new RestClient("https://www.talkisbetter.com/api/banks");
-                        foreach (var transaction in transactions)  //transactionsToPushUp
+                        foreach (var localTransaction in localTransactions)  //localTransactionsToPushUp
                         {
-                            var matchingTransaction = myTransactions.SingleOrDefault(x => x.SHA256 == transaction.SHA256);
+                            var matchingTransaction = remoteTransactions.SingleOrDefault(x => x.SHA256 == localTransaction.SHA256);
                             if (deleteExistingTransactions || matchingTransaction == null)
                             {
-                                transaction.userId = userId;
+                                localTransaction.userId = userId;
                                 JsonSerializer serializer = new JsonSerializer();
                                 serializer.Converters.Add(new JavaScriptDateTimeConverter());
                                 serializer.NullValueHandling = NullValueHandling.Ignore;
 
-                                string jsonTransaction = JsonConvert.SerializeObject(transaction, Formatting.Indented);
+                                string jsonTransaction = JsonConvert.SerializeObject(localTransaction, Formatting.Indented);
                                 request = new RestRequest(Method.POST);
                                 request.AddHeader("jwt", jwt);
                                 request.AddHeader("userId", userId);
@@ -191,25 +326,28 @@ namespace PersonalSpendingAnalysis.Dialogs
                                             status.AppendText("x");
                                         })
                                     );
-                                }
+                                } //end of response code
+                            } else
+                            {
+                                //todo merge the records somehow.
                             }
                         }
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully added " + numberAdded + " transactions failed to add " + numberFailedAdd + " transactions \r\n");
+                                status.AppendText("\r\nsuccessfully added " + numberAdded + " localTransactions failed to add " + numberFailedAdd + " localTransactions \r\n");
                             })
                         );
 
                         //SAVE NEW TRANSACTIONS FROM WEB TO DB
                         numberAdded = 0;
                         numberFailedAdd = 0;
-                        foreach (var transaction in myTransactions)  //transactionsToPushUp
+                        foreach (var remoteTransaction in remoteTransactions)  //localTransactionsToPushUp
                         {
-                            string stripped = transaction.ToString();
+                            string stripped = remoteTransaction.ToString();
                             stripped = stripped.Replace("{{", "{").Replace("}}", "}");
                             var t = JsonConvert.DeserializeObject<TransactionModel>(stripped);
-                            var matchingTransaction = transactions.SingleOrDefault(x => x.SHA256 == t.SHA256);
+                            var matchingTransaction = localTransactions.SingleOrDefault(x => x.SHA256 == t.SHA256);
                             if (matchingTransaction == null)
                             {
                                 var newTransaction = new Repo.Entities.Transaction
@@ -231,123 +369,13 @@ namespace PersonalSpendingAnalysis.Dialogs
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\ndb successfully added " + numberAdded + " transactions failed to add " + numberFailedAdd + " transactions \r\n");
-                                status.AppendText("\r\ncompleted transactions \r\n");
+                                status.AppendText("\r\ndb successfully added " + numberAdded + " localTransactions failed to add " + numberFailedAdd + " localTransactions \r\n");
+                                status.AppendText("\r\ncompleted localTransactions \r\n");
                             })
                         );
 
 
-                        return; //todo remove this when fixing up categories
 
-                        //GET CATEGORIES
-                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
-                        request = new RestRequest(Method.GET);
-                        request.AddHeader("jwt", jwt);
-                        request.AddHeader("userId", userId);
-                        request.AddHeader("content-type", "application/json");
-                        response = client.Execute(request);
-                        var myCategorys = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
-                        status.BeginInvoke(
-                            new Action(() =>
-                            {
-                                status.AppendText("\r\nsuccessfully read " + myCategorys.Count + " records\r\n");
-                            })
-                        );
-
-
-                        successfullyDeleted = 0;
-                        failedDelete = 0;
-
-                        if (deleteExistingTransactions)
-                        {
-                            foreach (var category in myCategorys)
-                            {
-                                client = new RestClient("https://www.talkisbetter.com/api/bankcategorys/" + category._id);
-                                request = new RestRequest(Method.DELETE);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                response = client.Execute(request);
-                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                                {
-                                    successfullyDeleted++;
-                                    status.BeginInvoke(
-                                        new Action(() =>
-                                        {
-                                            status.AppendText(".");
-                                        })
-                                    );
-                                }
-                                else
-                                {
-                                    failedDelete++;
-                                    status.BeginInvoke(
-                                        new Action(() =>
-                                        {
-                                            status.AppendText("x");
-                                        })
-                                    );
-                                }
-                            }
-
-                        }
-                        status.BeginInvoke(
-                            new Action(() =>
-                            {
-                                status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " categorys failed to delete " + failedDelete + " categorys\r\n");
-                            })
-                        );
-
-
-                        //POST EACH NEW TRANSACTION
-                        var numberOfCategoriesAdded = 0;
-                        var numberFailedAddCategories = 0;
-                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
-                        foreach (var category in categories)  
-                        {
-                            var matchingCategory = myCategorys.SingleOrDefault(x => x.Id == category.Id);
-                            if (deleteExistingTransactions || matchingCategory == null)
-                            {
-                                //category.userId = userId;
-                                JsonSerializer serializer = new JsonSerializer();
-                                serializer.Converters.Add(new JavaScriptDateTimeConverter());
-                                serializer.NullValueHandling = NullValueHandling.Ignore;
-
-                                string jsonCategory = JsonConvert.SerializeObject(category, Formatting.Indented);
-                                request = new RestRequest(Method.POST);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                request.AddParameter("application/json", jsonCategory, ParameterType.RequestBody);
-                                response = client.Execute(request);
-                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                                {
-                                    numberOfCategoriesAdded++;
-                                    status.BeginInvoke(
-                                        new Action(() =>
-                                        {
-                                            status.AppendText(".");
-                                        })
-                                    );
-                                }
-                                else
-                                {
-                                    numberFailedAddCategories++;
-                                    status.BeginInvoke(
-                                        new Action(() =>
-                                        {
-                                            status.AppendText("x");
-                                        })
-                                    );
-                                }
-                            }
-                        }
-                        status.BeginInvoke(
-                            new Action(() =>
-                            {
-                                status.AppendText("\r\nsuccessfully added " + numberOfCategoriesAdded + " categorys failed to add " + numberFailedAddCategories + " categorys \r\n");
-                            })
-                        );
 
                     }
             ));
