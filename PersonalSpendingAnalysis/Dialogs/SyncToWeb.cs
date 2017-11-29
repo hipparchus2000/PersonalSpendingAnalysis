@@ -151,14 +151,13 @@ namespace PersonalSpendingAnalysis.Dialogs
                                     );
                                 }
                             }
-
+                            status.BeginInvoke(
+                                new Action(() =>
+                                {
+                                    status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " remote categories failed to delete " + failedDelete + " remote categories\r\n");
+                                })
+                            );
                         }
-                        status.BeginInvoke(
-                            new Action(() =>
-                            {
-                                status.AppendText("\r\nsuccessfully deleted " + successfullyDeleted + " remote categories failed to delete " + failedDelete + " remote categories\r\n");
-                            })
-                        );
 
 
                         //POST EACH NEW CATEGORY
@@ -213,10 +212,38 @@ namespace PersonalSpendingAnalysis.Dialogs
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully added " + numberOfCategoriesAdded + " categories to local db failed to add " + numberFailedAddCategories + " categories \r\n");
+                                status.AppendText("\r\nsuccessfully uploaded " + numberOfCategoriesAdded + " categories to remote failed to upload " + numberFailedAddCategories + " categories \r\n");
                             })
                         );
 
+                        //SAVE NEW TRANSACTIONS FROM WEB TO DB
+                        var numberAdded = 0;
+                        var numberFailedAdd = 0;
+                        foreach (var remoteCategory in remoteCategories)  //localTransactionsToPushUp
+                        {
+                            string stripped = remoteCategory.ToString();
+                            stripped = stripped.Replace("{{", "{").Replace("}}", "}");
+                            var t = JsonConvert.DeserializeObject<Repo.Entities.Category>(stripped);
+                            var matchingCategory = localCategories.SingleOrDefault(x => x.Id == t.Id);
+                            if (matchingCategory == null)
+                            {
+                                var newCategory = new Repo.Entities.Category
+                                {
+                                    Id = t.Id,
+                                    Name = t.Name,
+                                    SearchString = t.SearchString
+                                };
+                                context.Categories.Add(newCategory);
+                                context.SaveChanges();
+                            }
+                        }
+                        status.BeginInvoke(
+                            new Action(() =>
+                            {
+                                status.AppendText("\r\ndb successfully added " + numberAdded + " categories to local db failed to add " + numberFailedAdd + " categories \r\n");
+                                status.AppendText("\r\ncompleted local Categories \r\n");
+                            })
+                        );
 
 
 
@@ -233,7 +260,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully read " + remoteTransactions.Length + " records\r\n");
+                                status.AppendText("\r\nsuccessfully downloaded " + remoteTransactions.Length + " transactions\r\n");
                             })
                         );
 
@@ -286,10 +313,11 @@ namespace PersonalSpendingAnalysis.Dialogs
 
 
 
+
                         //POST EACH NEW TRANSACTION
-                        var numberAdded = 0;
-                        var numberFailedAdd = 0;
-                        client = new RestClient("https://www.talkisbetter.com/api/banks");
+                        numberAdded = 0;
+                        numberFailedAdd = 0;
+                        client = new RestClient("https://www.talkisbetter.com/api/bank");
                         foreach (var localTransaction in localTransactions)  //localTransactionsToPushUp
                         {
                             var matchingTransaction = remoteTransactions.SingleOrDefault(x => x.SHA256 == localTransaction.SHA256);
@@ -335,7 +363,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully added " + numberAdded + " localTransactions failed to add " + numberFailedAdd + " localTransactions \r\n");
+                                status.AppendText("\r\nsuccessfully uploaded " + numberAdded + " transactions to remote failed to upload " + numberFailedAdd + " transactions \r\n");
                             })
                         );
 
@@ -369,7 +397,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\ndb successfully added " + numberAdded + " localTransactions failed to add " + numberFailedAdd + " localTransactions \r\n");
+                                status.AppendText("\r\ndb successfully added " + numberAdded + " transactions to local db failed to add " + numberFailedAdd + " transactions \r\n");
                                 status.AppendText("\r\ncompleted localTransactions \r\n");
                             })
                         );
