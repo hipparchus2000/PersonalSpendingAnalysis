@@ -1,21 +1,16 @@
-﻿using PersonalSpendingAnalysis.Repo;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Security.Cryptography;
-using CsvHelper;
 using PersonalSpendingAnalysis.Dialogs;
-using Newtonsoft.Json;
-using PersonalSpendingAnalysis.Repo.Entities;
 using System.IO;
-using Newtonsoft.Json.Converters;
 using System.Threading;
+using Unity;
+using PersonalSpendingAnalysis.IServices;
+using Models.Models;
+using IServices.Interfaces;
 
 namespace PersonalSpendingAnalysis
 {
@@ -31,184 +26,47 @@ namespace PersonalSpendingAnalysis
 
     public partial class PersonalSpendingAnalysis : Form
     {
+        IUnityContainer container = new UnityContainer();
+        IImportsAndExportService importsAndExportsService;
+        IAggregatesService aggregatesService;
+        IQueryService queriesService;
+
         orderBy currentOrder = orderBy.transactionDateDescending;
+        ICategoryService categoryService;
+        ITransactionService transactionService;
 
-
-        public PersonalSpendingAnalysis()
+        public PersonalSpendingAnalysis(
+                IImportsAndExportService _importsAndExportsService,
+                IAggregatesService _aggregatesService,
+                IQueryService _queriesService
+            )
         {
             InitializeComponent();
-        }
-
-        public static String sha256_hash(String value)
-        {
-            StringBuilder Sb = new StringBuilder();
-
-            using (SHA256 hash = SHA256Managed.Create())
-            {
-                Encoding enc = Encoding.UTF8;
-                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
-
-                foreach (Byte b in result)
-                    Sb.Append(b.ToString("x2"));
-            }
-
-            return Sb.ToString();
-        }
-
-        public class ImportResults
-        {
-            public ImportResults ()
-            {
-                importId = Guid.NewGuid();
-            }
-            public Guid importId { get; set; }
-            public int NumberOfRecordsImported { get; set; }
-            public int NumberOfDuplicatesFound { get; set; }
-            public int NumberOfNewRecordsFound { get; set; }
-            public int NumberOfFieldsFound { get; set; }
+            importsAndExportsService = _importsAndExportsService;
+            aggregatesService = _aggregatesService;
+            queriesService = _queriesService;
         }
 
         private void ImportCsv_Click(object sender, EventArgs e)
         {
-            ImportResults results = new ImportResults();
             var importCsvDialog = new OpenFileDialog();
             importCsvDialog.Filter = "CSV Files | *.csv";
             importCsvDialog.Title = "Select Csv File to import";
             DialogResult result = importCsvDialog.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                string csvText = System.IO.File.ReadAllText(importCsvDialog.FileName);
-                csvText = csvText.Replace("\n", "");
-                var importLines = csvText.Split('\r');
-
-                var nonNullLineCount = 0;
-                String[] headers;
-                foreach (var importLine in importLines)
-                {
-                    if (importLine != "")
-                    {
-                        results.NumberOfNewRecordsFound++;
-
-                        if (nonNullLineCount == 0)
-                        {
-                            headers = purgeCommasInTextFields(importLine).Split(',');
-                            results.NumberOfFieldsFound = headers.Length;
-                        }
-                        else
-                        {
-                            results.NumberOfRecordsImported++;
-
-                            var columns = purgeCommasInTextFields(importLine).Split(',');
-                            var context = new PersonalSpendingAnalysisRepo();
-                            var id = sha256_hash(importLine);
-
-                            DateTime tDate;
-                            DateTime.TryParse(columns[0], out tDate);
-                            decimal tAmount;
-                            Decimal.TryParse(columns[3], out tAmount);
-
-                            var existingRowForThisSHA256 = context.Transaction.SingleOrDefault(x => x.SHA256 == id);
-                            if (existingRowForThisSHA256 == null)
-                            {
-                                results.NumberOfNewRecordsFound++;
-
-                                context.Transaction.Add(new Repo.Entities.Transaction
-                                {
-                                    transactionDate = tDate,
-                                    amount = tAmount,
-                                    Notes = columns[2].Replace("\"",""),
-                                    SHA256 = id,
-                                });
-                                context.SaveChanges();
-                            } else
-                            {
-                                results.NumberOfDuplicatesFound++;
-                            }
-                        }
-                        nonNullLineCount++;
-                    }
-                }
-
+                var results = importsAndExportsService.ImportFile(importCsvDialog.FileName);
+                
                 MessageBox.Show("Import finished ( "+ results.importId+" ) "+ "\r" +
                     "number of fields per row = " + results.NumberOfFieldsFound + "\r" +
                     "number of records = " + results.NumberOfRecordsImported + "\r"+
                     "number of duplicates found = "+ results.NumberOfDuplicatesFound + "\r" +
                     "number of new records = " + results.NumberOfNewRecordsFound
                     );
-
-
             }
 
             refresh();
         } //end click
-
-        private String purgeCommasInTextFields(String original)
-        {
-            String modified = "";
-            bool insideQuotes = false;
-            foreach (var character in original)
-            {
-                if (character == '"')
-                    insideQuotes = !insideQuotes;
-                if (character == ',' && insideQuotes)
-                {
-                    //do nothing
-                } else
-                {
-                    modified = modified + character;
-                }
-            }
-            return modified;
-        }
-
-
-        //private void ImportCsv_Click2(object sender, EventArgs e)
-        //{
-        //    DialogResult result = openFileDialog1.ShowDialog();
-        //    if (result == DialogResult.OK) // Test result.
-        //    {
-        //        var csv = new CsvReader(System.IO.File.OpenText(openFileDialog1.FileName));
-        //        var myCustomObjects = csv.GetRecords<MyCustomObject>();
-        //        foreach (var ob in myCustomObjects) {
-        //            var importLine = ob.Date + ob.Type + ob.Description + ob.Value + ob.Balance + ob.Account_Name + ob.Account_Number;
-        //            var context = new PersonalSpendingAnalysisRepo();
-        //            var id = sha256_hash(importLine);
-
-        //            DateTime tDate;
-        //            DateTime.TryParse(ob.Date, out tDate);
-        //            decimal tAmount;
-        //            Decimal.TryParse(ob.Value, out tAmount);
-
-        //            var existingRowForThisSHA256 = context.Transaction.SingleOrDefault(x => x.SHA256 == id);
-        //            if (existingRowForThisSHA256 == null)
-        //            {
-        //                context.Transaction.Add(new Repo.Entities.Transaction
-        //                {
-        //                    Id = Guid.NewGuid(),
-        //                    transactionDate = tDate,
-        //                    amount = tAmount,
-        //                    Notes = ob.Description,
-        //                    Category = null,
-        //                    SHA256 = id,
-        //                });
-        //                context.SaveChanges();
-        //            }
-
-        //            refresh();
-        //        }
-        //    }
-        //}
-
-        private class MyCustomObject
-        {
-            public String Date { get; set; }
-            public String Type { get; set; }
-            public String Description { get; set; }
-            public String Value { get; set; }
-            public String Balance { get; set; }
-            public String Account_Name { get; set; }
-            public String Account_Number { get; set; }
-        }
 
         private void manageCategories_Click(object sender, EventArgs e)
         {
@@ -240,9 +98,8 @@ namespace PersonalSpendingAnalysis
         
         private void buttonAutoCategorize_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories;
-            var datarows = context.Transaction;
+            var categories = categoryService.GetCategories();
+            var datarows = transactionService.GetTransactions();
             var totalCount = datarows.Count();
 
             Thread backgroundThread = new Thread(
@@ -295,10 +152,9 @@ namespace PersonalSpendingAnalysis
                         }
                     }
 
+                    //todo work out how to save changes above
                     context.SaveChanges();
                     
-
-
                     MessageBox.Show("Autocategorization completed!");
                     progressBar1.BeginInvoke(
                             new Action(() =>
@@ -318,7 +174,7 @@ namespace PersonalSpendingAnalysis
         {
             this.transactionsGridView.Rows.Clear();
 
-            var context = new PersonalSpendingAnalysisRepo();
+            //todo move into service / repo
             var categories = context.Categories;
             var datarows = new List<Repo.Entities.Transaction>().ToList();
 
@@ -416,11 +272,6 @@ namespace PersonalSpendingAnalysis
             }
         }
 
-        public class Exportable
-        {
-            public List<Transaction> transactions;
-            public List<Category> categories;
-        }
 
         private void buttonExportAllToCsv_Click(object sender, EventArgs e)
         {
@@ -432,28 +283,13 @@ namespace PersonalSpendingAnalysis
                 Thread backgroundThread = new Thread(
                     new ThreadStart(() =>
                     {
-                        var context = new PersonalSpendingAnalysisRepo();
-                        var exportable = new Exportable();
-                        exportable.transactions = context.Transaction.ToList();
-                        exportable.categories = context.Categories.ToList();
-
-                        var settings = new JsonSerializerSettings
-                        {
-                            NullValueHandling = NullValueHandling.Ignore,
-                            MissingMemberHandling = MissingMemberHandling.Ignore,
-                            DateFormatHandling = DateFormatHandling.IsoDateFormat
-                        };
-
-                        string json = JsonConvert.SerializeObject(exportable, settings);
+                        var json = importsAndExportsService.GetExportableText();
                         File.WriteAllText(dlg.FileName, json);
-
                         MessageBox.Show("Export completed!");
                     }
                 ));
                 backgroundThread.Start();
-
             }
-            
 
         }
 
@@ -470,8 +306,6 @@ namespace PersonalSpendingAnalysis
 
         private void buttonImportAllFromCsv_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-
             var numberOfDuplicateTransactions = 0;
             var numberOfNewTransactions = 0;
             var numberOfDuplicateCategories = 0;
@@ -483,7 +317,10 @@ namespace PersonalSpendingAnalysis
             if (result == DialogResult.OK) // Test result.
             {
                 var fileText = File.ReadAllText(dlg.FileName);
-                var import = JsonConvert.DeserializeObject<Exportable>(fileText);
+
+                //todo move this to service/repo
+
+                var import = JsonConvert.DeserializeObject<ExportableModel>(fileText);
 
                 //do the categories first to avoid foreign key issues
                 foreach (var category in import.categories)

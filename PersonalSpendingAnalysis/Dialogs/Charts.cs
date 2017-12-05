@@ -158,7 +158,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void drawYearByCategoryChart()
         {
-            var context = new PersonalSpendingAnalysisRepo();
+            //todo move to service / repo
             var transactions = context.Transaction.Include("Category")
                 .Where(x => (x.transactionDate > this.startDate.Value)
                 && (x.transactionDate < this.endDate.Value)
@@ -216,16 +216,13 @@ namespace PersonalSpendingAnalysis.Dialogs
             }
 
             this.chart.ChartAreas[0].RecalculateAxesScale();
-            //this.chart.ChartAreas[0].AxisX.Minimum = yearList.First()-1;
-            //this.chart.ChartAreas[0].AxisX.Maximum = yearList.Last()+1;
-            //this.chart.ChartAreas[0].AxisY.Minimum = 0;
-            //this.chart.ChartAreas[0].AxisY.Maximum = (double)categories.Max(x => x.Amount);
         }
 
         private void drawPieChart()
         {
             style = SeriesChartType.Pie;
 
+            //todo move this to service/repo
             var categories = Queries.GetCategoryTotals(this.startDate.Value, this.endDate.Value, this.showDebitsOnly.Checked);
             var total = categories.Sum(x => x.Amount);
 

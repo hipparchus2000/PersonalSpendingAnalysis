@@ -2,16 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
-using PersonalSpendingAnalysis.Repo;
-
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -47,23 +39,13 @@ namespace PersonalSpendingAnalysis.Dialogs
         }
         
 
-        //private void InitializeComponent()
-        //{
-        //    this.SuspendLayout();
-            // 
-            // ManuallyAssignCategory
-            // 
-        //    this.ClientSize = new System.Drawing.Size(284, 261);
-        //    this.Name = "ManuallyAssignCategory";
-        //    this.ResumeLayout(false);
-
-        //}
 
         private void ManuallyAssignCategory_Load(object sender, EventArgs e)
         {
             this.comboBox1.DisplayMember = "Text";
             this.comboBox1.ValueMember = "Value";
 
+            //todo move this to service / repo
             var context = new PersonalSpendingAnalysisRepo();
             var categories = context.Categories.OrderBy(x => x.Name);
             foreach (var category in categories)

@@ -1,8 +1,5 @@
 ﻿using System;
-using PersonalSpendingAnalysis.Repo;
 using System.Windows.Forms;
-using PersonalSpendingAnalysis.Repo.Entities;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace PersonalSpendingAnalysis.Dialogs

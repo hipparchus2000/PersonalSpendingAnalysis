@@ -48,7 +48,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
             var deleteExistingTransactions = deleteExistingTransactionsCheckbox.Checked;
 
-            
+            //todo move this to service
 
             //LOGIN
             var client = new RestClient("https://www.talkisbetter.com/api/auth");

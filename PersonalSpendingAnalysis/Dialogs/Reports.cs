@@ -45,6 +45,7 @@ namespace PersonalSpendingAnalysis.Dialogs
             for (var loopYear = this.startDate.Value.Year; loopYear <= this.endDate.Value.Year; loopYear++)
                 yearList.Add(loopYear);
 
+            //todo move this to service / repo
             var context = new PersonalSpendingAnalysisRepo();
             var transactions = context.Transaction.Include("Category")
                 .Where(x => (x.transactionDate > this.startDate.Value)
