@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\AggregatesService.cs" />
+    <Compile Include="Services\BudgetsService.cs" />
     <Compile Include="Services\CategoryService.cs" />
     <Compile Include="Services\ImportsAndExportService.cs" />
     <Compile Include="Services\QueryService.cs" />
@@ -61,6 +61,10 @@
     <ProjectReference Include="..\Dtos\Dtos.csproj">
       <Project>{6A1E7D70-EBF6-46C5-A486-0F9CD9EB6E90}</Project>
       <Name>Dtos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Enums\Enums.csproj">
+      <Project>{680D9345-F59D-4052-84ED-EC0E1B0095DD}</Project>
+      <Name>Enums</Name>
     </ProjectReference>
     <ProjectReference Include="..\IRepositories\IRepositories.csproj">
       <Project>{020efdb1-c066-4804-a120-f5824c138514}</Project>

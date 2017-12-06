@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Models.Models;
 using IRepositories.Interfaces;
+using PersonalSpendingAnalysis.Dtos;
 
 namespace Services.Services
 {
@@ -20,7 +21,16 @@ namespace Services.Services
 
         public List<CategoryModel> GetCategories()
         {
-            throw new NotImplementedException();
+            var dtos = repo.GetCategories().Select(x=> new CategoryModel {
+            Id = x.Id, Name= x.Name, SearchString = x.SearchString }).ToList();
+            return dtos;
         }
+
+        public List<String> GetListOfCategories()
+        {
+            var strings = repo.GetCategoryNames();
+            return strings;
+        }
+
     }
 }

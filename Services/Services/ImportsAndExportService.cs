@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Models.Models;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
-using Unity;
 using IRepositories.Interfaces;
+using Enums;
+using PersonalSpendingAnalysis.Dtos;
+using PersonalSpendingAnalysis.Models;
 
 namespace PersonalSpendingAnalysis.Services
 {
@@ -125,9 +127,23 @@ namespace PersonalSpendingAnalysis.Services
         public string GetExportableText()
         {
             var exportable = new ExportableModel();
-            //todo project dtos to models
-            exportable.transactions = repo.GetTransactions();
-            exportable.categories = repo.GetCategories();
+            exportable.transactions = repo.GetTransactions().Select(x=> new TransactionModel
+            {
+                AccountId = x.AccountId,
+                amount = x.amount,
+                CategoryId = x.CategoryId,
+                Id = x.Id,
+                ManualCategory = x.ManualCategory,
+                Notes = x.Notes,
+                SHA256 = x.SHA256,
+                SubCategory = x.SubCategory,
+                transactionDate = x.transactionDate,
+                Category = null
+            }).ToList();
+            exportable.categories = repo.GetCategories().Select(x=>new CategoryModel
+            {
+                Id = x.Id, Name = x.Name, SearchString = x.SearchString
+            }).ToList();
 
             var settings = new JsonSerializerSettings
             {
@@ -138,6 +154,23 @@ namespace PersonalSpendingAnalysis.Services
             string json = JsonConvert.SerializeObject(exportable, settings);
             return json;
 
+        }
+
+        public ImportResult ImportJson(string fileText)
+        {
+            var import = JsonConvert.DeserializeObject<ExportableModel>(fileText);
+            var exportableDto = new ExportableDto
+            {
+                categories = import.categories.Select(x=>new CategoryDto {
+                    Id = x.Id, Name = x.Name, SearchString = x.SearchString
+                }).ToList(),
+                transactions = import.transactions.Select(x=>new TransactionDto {
+                    AccountId = x.AccountId, amount = x.amount, CategoryId = x.CategoryId, Id = x.Id,
+                    ManualCategory = x.ManualCategory, Notes = x.Notes, SHA256 = x.SHA256, SubCategory = x.SubCategory,
+                    transactionDate = x.transactionDate, Category = null
+                }).ToList()
+            };
+            return repo.ImportCategoriesAndTransactions(exportableDto);
         }
     }
 }

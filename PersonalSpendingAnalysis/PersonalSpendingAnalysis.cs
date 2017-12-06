@@ -11,40 +11,35 @@ using Unity;
 using PersonalSpendingAnalysis.IServices;
 using Models.Models;
 using IServices.Interfaces;
+using Enums;
 
 namespace PersonalSpendingAnalysis
 {
-    enum orderBy
-    {
-        transactionDateDescending,
-        transactionDateAscending,
-        amountAscending,
-        amountDescending,
-        categoryAscending,
-        categoryDescending
-    }
-
+    
     public partial class PersonalSpendingAnalysis : Form
     {
-        IUnityContainer container = new UnityContainer();
         IImportsAndExportService importsAndExportsService;
-        IAggregatesService aggregatesService;
+        IBudgetsService aggregatesService;
         IQueryService queriesService;
-
-        orderBy currentOrder = orderBy.transactionDateDescending;
         ICategoryService categoryService;
         ITransactionService transactionService;
 
+        orderBy currentOrder = orderBy.transactionDateDescending;
+
         public PersonalSpendingAnalysis(
                 IImportsAndExportService _importsAndExportsService,
-                IAggregatesService _aggregatesService,
-                IQueryService _queriesService
+                IBudgetsService _aggregatesService,
+                IQueryService _queriesService,
+                ICategoryService _categoryService,
+                ITransactionService _transactionService
             )
         {
             InitializeComponent();
             importsAndExportsService = _importsAndExportsService;
             aggregatesService = _aggregatesService;
             queriesService = _queriesService;
+            categoryService = _categoryService;
+            transactionService = _transactionService;
         }
 
         private void ImportCsv_Click(object sender, EventArgs e)
@@ -174,30 +169,8 @@ namespace PersonalSpendingAnalysis
         {
             this.transactionsGridView.Rows.Clear();
 
-            //todo move into service / repo
-            var categories = context.Categories;
-            var datarows = new List<Repo.Entities.Transaction>().ToList();
+            var datarows = transactionService.GetTransactions(currentOrder);
 
-            switch (currentOrder) {
-                case orderBy.transactionDateDescending:
-                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.transactionDate).ToList();
-                    break;
-                case orderBy.transactionDateAscending:
-                    datarows = context.Transaction.Include("Category").OrderBy(x => x.transactionDate).ToList();
-                    break;
-                case orderBy.amountAscending:
-                    datarows = context.Transaction.Include("Category").OrderBy(x => x.amount).ToList();
-                    break;
-                case orderBy.amountDescending:
-                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.amount).ToList();
-                    break;
-                case orderBy.categoryAscending:
-                    datarows = context.Transaction.Include("Category").OrderBy(x => x.Category==null? "": x.Category.Name).ToList();
-                    break;
-                case orderBy.categoryDescending:
-                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.Category == null ? "" : x.Category.Name).ToList();
-                    break;
-            }
 
             var uncategorized = 0;
             var totalTransactions = 0;
@@ -320,46 +293,7 @@ namespace PersonalSpendingAnalysis
 
                 //todo move this to service/repo
 
-                var import = JsonConvert.DeserializeObject<ExportableModel>(fileText);
-
-                //do the categories first to avoid foreign key issues
-                foreach (var category in import.categories)
-                {
-                    if (context.Categories.SingleOrDefault(x => x.Id == category.Id) != null)
-                    {
-                        //this method aggregates search strings - todo perhaps give user the choice to aggregate or
-                        //replace or keep search strings.
-                        numberOfDuplicateCategories++;
-                        var oldCategory = context.Categories.Single(x => x.Id == category.Id);
-                        var searchStrings = oldCategory.SearchString.Split(',').ToList();
-                        searchStrings.AddRange(category.SearchString.Split(','));
-                        var uniqueSearchStrings = searchStrings.Distinct();
-                        oldCategory.SearchString = string.Join(",", uniqueSearchStrings);                        
-                    }
-                    else
-                    {
-                        context.Categories.Add(category);
-                        context.SaveChanges();
-                        numberOfNewCategories++;
-                    }
-                }
-
-                foreach (var transaction in import.transactions)
-                {
-                    if (context.Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
-                    {
-                        transaction.Category = null;
-                        //import the transaction
-                        context.Transaction.Add(transaction);
-                        context.SaveChanges();
-                        numberOfNewTransactions++;
-                    }
-                    else
-                    {
-                        //transaction is already here
-                        numberOfDuplicateTransactions++;
-                    }
-                }
+                importsAndExportsService.ImportJson(fileText);
 
                 refresh();
 

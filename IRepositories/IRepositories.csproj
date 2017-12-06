@@ -48,6 +48,10 @@
       <Project>{6A1E7D70-EBF6-46C5-A486-0F9CD9EB6E90}</Project>
       <Name>Dtos</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Enums\Enums.csproj">
+      <Project>{680d9345-f59d-4052-84ed-ec0e1b0095dd}</Project>
+      <Name>Enums</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

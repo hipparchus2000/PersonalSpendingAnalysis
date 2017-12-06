@@ -16,12 +16,6 @@ namespace PersonalSpendingAnalysis.Dialogs
         public AccountManager()
         {
             InitializeComponent();
-            //var context = new PersonalSpendingAnalysisRepo();
-            //var categories = context.Categories;
-            //foreach (var category in categories)
-            //{
-            //    this.categoriesGridView.Rows.Add(category);
-            //}
         }
         
 

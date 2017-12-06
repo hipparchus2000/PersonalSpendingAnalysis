@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PersonalSpendingAnalysis.Services
+namespace PersonalSpendingAnalysis.Dtos
 {
     public class TransactionDto
     {
@@ -9,6 +9,7 @@ namespace PersonalSpendingAnalysis.Services
         public DateTime transactionDate { get; set; }
         public string Notes { get; set; }
         public Guid? CategoryId { get; set; }
+        public CategoryDto Category { get; set; }
         public String SubCategory { get; set; } //subcategory is search string found
         public Guid? AccountId { get; set; }
         public String SHA256 { get; set; }

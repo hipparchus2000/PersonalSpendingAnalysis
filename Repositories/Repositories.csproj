@@ -79,6 +79,10 @@
       <Project>{6a1e7d70-ebf6-46c5-a486-0f9cd9eb6e90}</Project>
       <Name>Dtos</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Enums\Enums.csproj">
+      <Project>{680d9345-f59d-4052-84ed-ec0e1b0095dd}</Project>
+      <Name>Enums</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IRepositories\IRepositories.csproj">
       <Project>{020efdb1-c066-4804-a120-f5824c138514}</Project>
       <Name>IRepositories</Name>

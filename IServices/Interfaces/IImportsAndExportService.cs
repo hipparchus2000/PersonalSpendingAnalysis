@@ -1,4 +1,5 @@
-﻿using Models.Models;
+﻿using Enums;
+using Models.Models;
 
 namespace PersonalSpendingAnalysis.IServices
 {
@@ -6,5 +7,6 @@ namespace PersonalSpendingAnalysis.IServices
     {
         ImportResults ImportFile(string fileName);
         string GetExportableText();
+        ImportResult ImportJson(string fileText);
     }
 }

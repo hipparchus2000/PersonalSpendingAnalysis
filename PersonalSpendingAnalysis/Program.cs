@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+﻿using IServices.Interfaces;
 using PersonalSpendingAnalysis.IServices;
 using PersonalSpendingAnalysis.Services;
+using Services.Services;
 using System;
 using System.Windows.Forms;
 using Unity;
@@ -23,17 +24,21 @@ namespace PersonalSpendingAnalysis
 
             var importsAndExportsService = container.Resolve<IImportsAndExportService>();
             var queryService = container.Resolve<IQueryService>();
-            var aggregatesService = container.Resolve<IAggregatesService>();
+            var budgetsService = container.Resolve<IBudgetsService>();
+            var categoryService = container.Resolve<ICategoryService>();
+            var transactionService = container.Resolve<ITransactionService>();
 
-            Application.Run(new PersonalSpendingAnalysis(importsAndExportsService,aggregatesService,queryService));
+
+            Application.Run(new PersonalSpendingAnalysis(importsAndExportsService, budgetsService, queryService,categoryService,transactionService));
         }
 
         private static void InjectDependencies()
         {
             container.RegisterType<IQueryService, QueryService>();
-            container.RegisterType<IAggregatesService, AggregatesService>();
+            container.RegisterType<IBudgetsService, BudgetsService>();
             container.RegisterType<IImportsAndExportService, ImportsAndExportService>();
-            
+            container.RegisterType<ICategoryService, CategoryService>();
+            container.RegisterType<ITransactionService, TransactionService>();
         }
     }
 }

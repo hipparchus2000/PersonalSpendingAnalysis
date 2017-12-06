@@ -48,7 +48,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ServiceTests\UnitTest1.cs" />
+    <Compile Include="ServiceTests\ImportsAndExportService.cs" />
+    <Compile Include="ServiceTests\AggregatesServiceTest.cs" />
+    <Compile Include="ServiceTests\CategoryServiceTest.cs" />
+    <Compile Include="ServiceTests\QueryServiceTest.cs" />
+    <Compile Include="ServiceTests\TransactionServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
