@@ -9,7 +9,6 @@ using PersonalSpendingAnalysis.Dtos;
 namespace PersonalSpendingAnalysis.Services
 {
     
-    //todo rename this to QueryServiceService
     public class QueryService : IQueryService
     {
         IPersonalSpendingAnalysisRepo repo;
@@ -46,6 +45,35 @@ namespace PersonalSpendingAnalysis.Services
             return result;
         }
 
-        
+        public TransactionsAndCategoriesForChartsModel GetTransactionsWithCategoriesForCharts(DateTime start, DateTime end)
+        {
+            var dto = repo.GetTransactionsWithCategoriesForCharts(start, end);
+            var model = new TransactionsAndCategoriesForChartsModel
+            {
+                Categories = dto.Categories.Select(x=> new CategoryModel {
+                    Id = x.Id,
+                    Name = x.Name,
+                    SearchString = x.SearchString
+                }).ToList(),
+                Transactions = dto.Transactions.Select(x=>new TransactionModel {
+                    AccountId = x.AccountId,
+                    amount = x.amount,
+                    Category = x.Category == null ? null : new CategoryModel
+                    {
+                        Id = x.Category.Id,
+                        Name = x.Category.Name,
+                        SearchString = x.Category.SearchString
+                    },
+                    ManualCategory = x.ManualCategory,
+                    Id = x.Id,
+                    CategoryId = x.CategoryId,
+                    Notes = x.Notes,
+                    SHA256 = x.SHA256,
+                    SubCategory = x.SubCategory,
+                    transactionDate = x.transactionDate
+                }).ToList()
+            };
+            return model;
+        }
     }
 }

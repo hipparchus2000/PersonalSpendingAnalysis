@@ -43,7 +43,7 @@ namespace PersonalSpendingAnalysis.Repo
                 Id = x.Id,
                 Name = x.Name,
                 SearchString = x.SearchString
-            }).ToList();
+            }).OrderBy(x => x.Name).ToList();
         }
 
         public List<string> GetCategoryNames()
@@ -281,6 +281,31 @@ namespace PersonalSpendingAnalysis.Repo
                     SaveChanges();
                 }
             }
+        }
+
+        public TransactionsWithCategoriesForChartsDto GetTransactionsWithCategoriesForCharts(DateTime start, DateTime end)
+        {
+            var transactions = Transaction.Include("Category")
+                .Where(x => (x.transactionDate > start )    
+                && (x.transactionDate < end )
+                );
+            var categories = transactions
+                .GroupBy(x => new { CategoryName = x.Category.Name })
+                .Select(x => new
+                {
+                    CategoryName = x.Key.CategoryName,
+                    Amount = x.Sum(y => y.amount)
+                }).OrderByDescending(x => x.Amount)
+                    .ToList();
+            var result = new TransactionsWithCategoriesForChartsDto();
+            result.Transactions = transactions;
+            result.Categories = categories;
+            return result;
+        }
+
+        public DateTime GetEarliestTransactionDate()
+        {
+            return Transaction.Min(x => x.transactionDate);
         }
     }
 }

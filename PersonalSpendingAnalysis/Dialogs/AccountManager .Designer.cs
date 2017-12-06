@@ -1,9 +1,8 @@
 ﻿using System;
-using PersonalSpendingAnalysis.Repo;
 using System.Windows.Forms;
-using PersonalSpendingAnalysis.Repo.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using IServices.Interfaces;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -13,6 +12,12 @@ namespace PersonalSpendingAnalysis.Dialogs
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+        ICategoryService categoryService;
+
+        public AccountManager(ICategoryService _categoryService)
+        {
+            categoryService = _categoryService;
+        }
 
         /// <summary>
         /// Clean up any resources being used.
@@ -93,9 +98,8 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void CategoryManager_Load(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.OrderBy(x=>x.Name);
-            
+            var categories = categoryService.GetCategories();
+
             foreach (var category in categories)
             {
                 //category

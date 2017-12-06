@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Models.Models
+namespace PersonalSpendingAnalysis.Models
 {
     public class CategoryModel
     {

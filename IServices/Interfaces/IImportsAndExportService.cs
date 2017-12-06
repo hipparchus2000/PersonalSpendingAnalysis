@@ -1,5 +1,5 @@
 ﻿using Enums;
-using Models.Models;
+using PersonalSpendingAnalysis.Models;
 
 namespace PersonalSpendingAnalysis.IServices
 {

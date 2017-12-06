@@ -1,9 +1,8 @@
-﻿using PersonalSpendingAnalysis.Models;
-using PersonalSpendingAnalysis.Repo;
-using PersonalSpendingAnalysis.Services;
+﻿using IServices.Interfaces;
+using PersonalSpendingAnalysis.IServices;
+using PersonalSpendingAnalysis.Models;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -11,9 +10,16 @@ namespace PersonalSpendingAnalysis.Dialogs
 {
     public partial class BudgetManager : Form
     {
-        public BudgetManager()
+        IQueryService queryService;
+        ICategoryService categoryService;
+        IBudgetsService budgetsService;
+
+        public BudgetManager(IQueryService _queryService, ICategoryService _categoryService, IBudgetsService _budgetsService)
         {
             InitializeComponent();
+            queryService = _queryService;
+            categoryService = _categoryService;
+            budgetsService = _budgetsService;
         }
 
         private void refresh()
@@ -24,14 +30,14 @@ namespace PersonalSpendingAnalysis.Dialogs
             var firstDayOfThisMonth = new DateTime(today.Year, today.Month, 1);
             var sixMonthsBeforeFirstDayOfThisMonth = firstDayOfThisMonth.AddMonths(-6);
     
-            var last6MonthCategoryTotals = Queries.GetCategoryTotals(sixMonthsBeforeFirstDayOfThisMonth, firstDayOfThisMonth, false);
-            var categoryTotalsForAllTime = Queries.GetCategoryTotalsForAllTime();
-            var listOfCategories = Queries.GetListOfCategories();
-            var Budgets = Queries.GetBudgets();
-            var SpendThisMonth = Queries.GetCategoryTotals(firstDayOfThisMonth, today, false);
+            var last6MonthCategoryTotals = queryService.GetCategoryTotals(sixMonthsBeforeFirstDayOfThisMonth, firstDayOfThisMonth, false);
+            var categoryTotalsForAllTime = queryService.GetCategoryTotalsForAllTime();
+            var listOfCategories = categoryService.GetListOfCategories();
+            var Budgets = budgetsService.GetBudgets();
+            var SpendThisMonth = queryService.GetCategoryTotals(firstDayOfThisMonth, today, false);
 
             var averageNumberOfDaysPerMonth = 29.53;
-            var numberOfMonthsOfRecords = Queries.GetNumberOfDaysOfRecordsInSystem()/ averageNumberOfDaysPerMonth;
+            var numberOfMonthsOfRecords = queryService.GetNumberOfDaysOfRecordsInSystem()/ averageNumberOfDaysPerMonth;
 
             var last6MonthAverages = new List<CategoryMonthlyAverage>();
             var averagesForAllTime = new List<CategoryMonthlyAverage>();
@@ -111,7 +117,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                 }
             }
 
-            Aggregates.CreateOrUpdateBudgets(listOfBudgets);
+            budgetsService.CreateOrUpdateBudgets(listOfBudgets);
 
         }
 

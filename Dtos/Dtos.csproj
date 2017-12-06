@@ -45,6 +45,7 @@
     <Compile Include="Dtos\CategoryTotalDto.cs" />
     <Compile Include="Dtos\ExportableDto.cs" />
     <Compile Include="Dtos\TransactionDto.cs" />
+    <Compile Include="Dtos\TransactionsWithCategoriesForChartsDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

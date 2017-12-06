@@ -1,15 +1,9 @@
-﻿using PersonalSpendingAnalysis.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Models.Models
+namespace PersonalSpendingAnalysis.Models
 {
     public class ExportableModel
     {
-        //todo change to Model and automap
         public List<TransactionModel> transactions;
         public List<CategoryModel> categories;
     }

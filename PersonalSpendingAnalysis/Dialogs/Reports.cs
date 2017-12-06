@@ -1,34 +1,27 @@
-﻿using PersonalSpendingAnalysis.Repo;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
-using System.Globalization;
-using System;
 using System.Diagnostics;
-using System.IO;
-using PdfSharp;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
-using PdfSharp.Drawing.Layout;
-using System.Threading;
+using PersonalSpendingAnalysis.IServices;
+using IServices.Interfaces;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
     
     public partial class Reports : Form
     {
-        
-        public Reports()
+        IQueryService queryService;
+        ITransactionService transactionService;
+        IReportService reportService;
+
+        public Reports(IQueryService _queryService, ITransactionService _transactionService, IReportService _reportService)
         {
             InitializeComponent();
+            queryService = _queryService;
+            transactionService = _transactionService;
+            reportService = _reportService;
         }
 
         class SortableTreeNode
@@ -45,52 +38,39 @@ namespace PersonalSpendingAnalysis.Dialogs
             for (var loopYear = this.startDate.Value.Year; loopYear <= this.endDate.Value.Year; loopYear++)
                 yearList.Add(loopYear);
 
-            //todo move this to service / repo
-            var context = new PersonalSpendingAnalysisRepo();
-            var transactions = context.Transaction.Include("Category")
-                .Where(x => (x.transactionDate > this.startDate.Value)
-                && (x.transactionDate < this.endDate.Value)
-                );
-            var categories = transactions
-                .GroupBy(x => new { CategoryName = x.Category.Name })
-                .Select(x => new
-                {
-                    CategoryName = x.Key.CategoryName,
-                    Amount = x.Sum(y => y.amount)
-                }).OrderByDescending(x => x.Amount)
-                    .ToList();
-
+            var model = queryService.GetTransactionsWithCategoriesForCharts(this.startDate.Value,this.endDate.Value);
+            
             var count = 0;
 
-            foreach (var category in categories)
+            foreach (var category in model.CategoryTotals)
             {
                 count++;
-                decimal percent = (decimal)count / (decimal)transactions.Count();
+                decimal percent = (decimal)count / (decimal)model.Transactions.Count();
                 UpdateProgressBar(percent);
 
                 var node = new TreeNode(category.CategoryName + " = " + category.Amount);
 
+                //todo make the structure returned from the service be a tree of the right format
                 foreach (var year in yearList)
                 {
-                    var value = transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount);
+                    var value = model.Transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount);
                     decimal? permonth = (value / 12.0m);
                     var yearNode = new TreeNode(year + " = " + value + (permonth==null?"":"    (per month = " + ((decimal)permonth).ToString("#.##") + " ) ") );
 
-                    var searchStrings = context.Categories.First(x => x.Name == category.CategoryName).SearchString + ",manually assigned";
-
-
+                    var searchStrings = model.Categories.First(x => x.Name == category.CategoryName).SearchString + ",manually assigned";
+                    
                     var subCategories = new List<SortableTreeNode>();
 
                     foreach (var searchString in searchStrings.Split(',').ToList())
                     {
 
-                        var subCatValue = transactions
+                        var subCatValue = model.Transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString)
                             .Sum(x => (Decimal?)x.amount);
 
                         var subCategoryNode = new TreeNode(searchString + " " + subCatValue);
                         
-                        var transactionsInSubcategory = transactions
+                        var transactionsInSubcategory = model.Transactions
                             .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString).ToArray();
 
                         foreach (var transaction in transactionsInSubcategory)
@@ -136,10 +116,6 @@ namespace PersonalSpendingAnalysis.Dialogs
             progressBar1.Visible = true;
             buttonReport.Enabled = false;
             buttonExportPdf.Enabled = false;
-            //Thread thread = new Thread(runReport);
-            //thread.IsBackground = true;
-            //thread.Start();
-            //need to separate work from GUI for this.
             runReport();
 
         }
@@ -147,9 +123,7 @@ namespace PersonalSpendingAnalysis.Dialogs
         private void Reports_Load(object sender, EventArgs e)
         {
             progressBar1.Visible = false;
-
-            var context = new PersonalSpendingAnalysisRepo();
-            var startDate = context.Transaction.Min(x => x.transactionDate);
+            var startDate = transactionService.GetEarliestTransactionDate();
             this.endDate.Value = DateTime.Today;
             this.startDate.Value = startDate;
         }
@@ -162,70 +136,14 @@ namespace PersonalSpendingAnalysis.Dialogs
             DialogResult result = exportPdfDlg.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                makePdf(treeView.Nodes, exportPdfDlg.FileName);
-            }
-                
-        }
+                var includeTransactions = this.includeTransactions.Checked;
+                reportService.createReport(treeView.Nodes, exportPdfDlg.FileName, includeTransactions);
+                Process.Start(exportPdfDlg.FileName);
 
-
-        private void makePdf(TreeNodeCollection nodes, string filename)
-        {
-            List<string> s = new List<string>();
-            string spaces = "";
-            int indentLevel = 0;
-            int maxIndentLevel = 5;
-
-            var includeTransactions = this.includeTransactions.Checked;
-            if  (!includeTransactions)
-            {
-                maxIndentLevel = 2;
-            } 
-            
-            walkTree(nodes, spaces, ref s, indentLevel, maxIndentLevel);
-
-            var pagesize = 70;
-            var numberOfPages = (int)(s.Count / pagesize) +1;
-
-            PdfDocument document = new PdfDocument();
-            XFont categoryfont = new XFont("Arial", 8, XFontStyle.Bold);
-            XFont yearfont = new XFont("Arial", 8, XFontStyle.Underline);
-            XFont font = new XFont("Arial", 8, XFontStyle.Regular);
-
-            for (var pageNum = 0; pageNum < numberOfPages; pageNum++)
-            {
-                var numberOfRows = pagesize;
-                if (((pageNum * pagesize)+ pagesize) > s.Count)
-                    numberOfRows = s.Count % pagesize;
-                string text = String.Join("\r\n", s.GetRange(pageNum* pagesize, numberOfRows));
-
-                PdfPage page = document.AddPage();
-                XGraphics gfx = XGraphics.FromPdfPage(page);
-                XTextFormatter tf = new XTextFormatter(gfx);
-
-                XRect rect = new XRect(20, 50, 550, 850);
-                gfx.DrawRectangle(XBrushes.White, rect);
-                tf.Alignment = XParagraphAlignment.Left;
-                tf.DrawString(text, font, XBrushes.Black, rect, XStringFormats.TopLeft);
             }
 
-            document.Save(filename);
-            Process.Start(filename);
-     
         }
 
-        const String indent = "    ";
-
-        private void walkTree(TreeNodeCollection nodes, string spaces, ref List<string> s, int indentLevel, int maxIndentLevel)
-        {
-            spaces = spaces + indent;
-            indentLevel++;
-
-            foreach(TreeNode node in nodes)
-            {
-                s.Add(spaces+node.Text);
-                if (node.Nodes.Count>0 && indentLevel<=maxIndentLevel)
-                    walkTree(node.Nodes, spaces, ref s, indentLevel, maxIndentLevel);
-            }
-        }
+        
     }
 }

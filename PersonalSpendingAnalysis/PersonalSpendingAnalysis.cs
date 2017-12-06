@@ -1,45 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using PersonalSpendingAnalysis.Dialogs;
 using System.IO;
 using System.Threading;
-using Unity;
 using PersonalSpendingAnalysis.IServices;
-using Models.Models;
 using IServices.Interfaces;
 using Enums;
 
 namespace PersonalSpendingAnalysis
 {
-    
+
     public partial class PersonalSpendingAnalysis : Form
     {
         IImportsAndExportService importsAndExportsService;
-        IBudgetsService aggregatesService;
+        IBudgetsService budgetsService;
         IQueryService queriesService;
         ICategoryService categoryService;
         ITransactionService transactionService;
+        IReportService reportService;
 
         orderBy currentOrder = orderBy.transactionDateDescending;
 
         public PersonalSpendingAnalysis(
                 IImportsAndExportService _importsAndExportsService,
-                IBudgetsService _aggregatesService,
+                IBudgetsService _budgetsService,
                 IQueryService _queriesService,
                 ICategoryService _categoryService,
-                ITransactionService _transactionService
+                ITransactionService _transactionService,
+                IReportService _reportService
             )
         {
             InitializeComponent();
             importsAndExportsService = _importsAndExportsService;
-            aggregatesService = _aggregatesService;
+            budgetsService = _budgetsService;
             queriesService = _queriesService;
             categoryService = _categoryService;
             transactionService = _transactionService;
+            _reportService = reportService;
         }
 
         private void ImportCsv_Click(object sender, EventArgs e)
@@ -71,7 +70,7 @@ namespace PersonalSpendingAnalysis
 
         private void ManageBudget_Click(object sender, EventArgs e)
         {
-            var dlg = new BudgetManager();
+            var dlg = new BudgetManager(queriesService, categoryService, budgetsService);
             dlg.Show();
         }
 
@@ -219,7 +218,7 @@ namespace PersonalSpendingAnalysis
 
         private void buttonReports_Click(object sender, EventArgs e)
         {
-            var dlg = new Reports();
+            var dlg = new Reports(queriesService, transactionService, reportService);
             dlg.Show();
         }
 

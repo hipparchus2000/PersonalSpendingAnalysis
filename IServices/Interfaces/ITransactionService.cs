@@ -8,5 +8,6 @@ namespace IServices.Interfaces
     {
         List<TransactionModel> GetTransactions();
         List<TransactionModel> GetTransactions(global::Enums.orderBy currentOrder);
+        DateTime GetEarliestTransactionDate();
     }
 }

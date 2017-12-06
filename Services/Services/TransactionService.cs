@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using PersonalSpendingAnalysis.Models;
 using IRepositories.Interfaces;
 using Enums;
-using Models.Models;
 
 namespace Services.Services
 {
@@ -20,6 +19,10 @@ namespace Services.Services
             repo = _repo;
         }
 
+        public DateTime GetEarliestTransactionDate()
+        {
+            return repo.GetEarliestTransactionDate();
+        }
 
         public List<TransactionModel> GetTransactions()
         {
