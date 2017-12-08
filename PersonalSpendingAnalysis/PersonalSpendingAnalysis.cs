@@ -38,7 +38,7 @@ namespace PersonalSpendingAnalysis
             queriesService = _queriesService;
             categoryService = _categoryService;
             transactionService = _transactionService;
-            _reportService = reportService;
+            reportService = _reportService;
         }
 
         private void ImportCsv_Click(object sender, EventArgs e)
