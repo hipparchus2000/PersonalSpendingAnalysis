@@ -37,6 +37,7 @@
     <Reference Include="CommonServiceLocator, Version=2.0.1.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\packages\Unity.5.3.2\lib\net45\CommonServiceLocator.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -197,6 +198,10 @@
       <Project>{680D9345-F59D-4052-84ED-EC0E1B0095DD}</Project>
       <Name>Enums</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IRepositories\IRepositories.csproj">
+      <Project>{020EFDB1-C066-4804-A120-F5824C138514}</Project>
+      <Name>IRepositories</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IServices\IServices.csproj">
       <Project>{087af45b-3990-4c0c-90a6-168fbf69c852}</Project>
       <Name>IServices</Name>
@@ -204,6 +209,10 @@
     <ProjectReference Include="..\Models\Models.csproj">
       <Project>{c76bd010-8a12-4a4f-a79f-be36a1b573e8}</Project>
       <Name>Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Repositories\Repositories.csproj">
+      <Project>{375839F4-9024-4FC8-8023-E348B02ADB8F}</Project>
+      <Name>Repositories</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Services.csproj">
       <Project>{8EEB7ED2-29B7-45EA-98ED-BCA93A133A1D}</Project>

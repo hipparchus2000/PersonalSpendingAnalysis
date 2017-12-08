@@ -1,5 +1,7 @@
-﻿using IServices.Interfaces;
+﻿using IRepositories.Interfaces;
+using IServices.Interfaces;
 using PersonalSpendingAnalysis.IServices;
+using PersonalSpendingAnalysis.Repo;
 using PersonalSpendingAnalysis.Services;
 using Services.Services;
 using System;
@@ -22,18 +24,20 @@ namespace PersonalSpendingAnalysis
             Application.SetCompatibleTextRenderingDefault(false);
             InjectDependencies();
 
-            var importsAndExportsService = container.Resolve<IImportsAndExportService>();
-            var queryService = container.Resolve<IQueryService>();
-            var budgetsService = container.Resolve<IBudgetsService>();
-            var categoryService = container.Resolve<ICategoryService>();
-            var transactionService = container.Resolve<ITransactionService>();
-            var reportService = container.Resolve<IReportService>();
+            //resolve concrete types
+            var importsAndExportsService = container.Resolve<ImportsAndExportService>();
+            var queryService = container.Resolve<QueryService>();
+            var budgetsService = container.Resolve<BudgetsService>();
+            var categoryService = container.Resolve<CategoryService>();
+            var transactionService = container.Resolve<TransactionService>();
+            var reportService = container.Resolve<ReportService>();
             
             Application.Run(new PersonalSpendingAnalysis(importsAndExportsService, budgetsService, queryService,categoryService,transactionService, reportService));
         }
 
         private static void InjectDependencies()
-        {
+        { 
+            container.RegisterType<IPersonalSpendingAnalysisRepo, PersonalSpendingAnalysisRepo>();
             container.RegisterType<IQueryService, QueryService>();
             container.RegisterType<IBudgetsService, BudgetsService>();
             container.RegisterType<IImportsAndExportService, ImportsAndExportService>();
