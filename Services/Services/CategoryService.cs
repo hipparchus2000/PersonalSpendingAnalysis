@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Models.Models;
 using IRepositories.Interfaces;
+using PersonalSpendingAnalysis.Models;
 using PersonalSpendingAnalysis.Dtos;
 
 namespace Services.Services
@@ -17,6 +15,15 @@ namespace Services.Services
         public CategoryService(IPersonalSpendingAnalysisRepo _repo)
         {
             repo = _repo;
+        }
+
+        public CategoryModel AddNewCategory(CategoryModel model)
+        {
+            repo.AddNewCategory(new CategoryDto
+            {
+                Id = model.Id, Name = model.Name, SearchString = model.SearchString
+            });
+            return model;
         }
 
         public List<CategoryModel> GetCategories()
@@ -32,5 +39,19 @@ namespace Services.Services
             return strings;
         }
 
+        public void RemoveCategory(CategoryModel model)
+        {
+            repo.RemoveCategory(new CategoryDto
+            {
+                Id = model.Id,
+                Name = model.Name,
+                SearchString = model.SearchString
+            });
+        }
+
+        public void UpdateCategorySearchString(Guid id, string text)
+        {
+            repo.UpdateCategorySearchString(id, text);
+        }
     }
 }

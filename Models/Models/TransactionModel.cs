@@ -16,6 +16,6 @@ namespace PersonalSpendingAnalysis.Models
         public Guid? AccountId { get; set; }
         public String SHA256 { get; set; }
         public bool ManualCategory { get; set; }
-        public string userId { get; internal set; }
+        public string userId { get; set; }
     }
 }

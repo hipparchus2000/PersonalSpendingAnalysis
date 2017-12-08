@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IServices.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,19 +8,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
-using PersonalSpendingAnalysis.Repo;
-
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
     public partial class AddSearchStringToCategory : Form
     {
-        public AddSearchStringToCategory()
+        ICategoryService categoryService;
+
+        public AddSearchStringToCategory(ICategoryService _categoryService)
         {
             InitializeComponent();
+            categoryService = _categoryService;
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -39,11 +38,8 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void buttonAddSearchStringToCategory_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
             var selectedCategory = (ComboboxItem)this.comboBoxCategory.SelectedItem;
-            var category = context.Categories.Single(x => x.Id == selectedCategory.Value);
-            category.SearchString += "," + this.textBoxSearchString.Text;
-            context.SaveChanges();
+            categoryService.UpdateCategorySearchString(selectedCategory.Value, this.textBoxSearchString.Text);
             this.Close();
         }
 
@@ -62,9 +58,8 @@ namespace PersonalSpendingAnalysis.Dialogs
         {
             this.comboBoxCategory.DisplayMember = "Text";
             this.comboBoxCategory.ValueMember = "Value";
-
-            var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.OrderBy(x=>x.Name);
+            
+            var categories = categoryService.GetCategories().OrderBy(x=>x.Name);
             foreach (var category in categories)
             {
                 this.comboBoxCategory.Items.Add(new ComboboxItem(category.Name, category.Id));

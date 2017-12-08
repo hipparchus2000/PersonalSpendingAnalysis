@@ -27,9 +27,9 @@ namespace PersonalSpendingAnalysis
             var budgetsService = container.Resolve<IBudgetsService>();
             var categoryService = container.Resolve<ICategoryService>();
             var transactionService = container.Resolve<ITransactionService>();
-
-
-            Application.Run(new PersonalSpendingAnalysis(importsAndExportsService, budgetsService, queryService,categoryService,transactionService));
+            var reportService = container.Resolve<IReportService>();
+            
+            Application.Run(new PersonalSpendingAnalysis(importsAndExportsService, budgetsService, queryService,categoryService,transactionService, reportService));
         }
 
         private static void InjectDependencies()
@@ -39,6 +39,7 @@ namespace PersonalSpendingAnalysis
             container.RegisterType<IImportsAndExportService, ImportsAndExportService>();
             container.RegisterType<ICategoryService, CategoryService>();
             container.RegisterType<ITransactionService, TransactionService>();
+            container.RegisterType<IReportService, ReportService>();
         }
     }
 }

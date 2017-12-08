@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IServices.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,10 +11,17 @@ namespace PersonalSpendingAnalysis.Dialogs
     public partial class ManuallyAssignCategory : Form
     {
         public Guid transactionId { get; set; }
+        ITransactionService transactionService;
+        ICategoryService categoryService;
 
-        public ManuallyAssignCategory()
+        public ManuallyAssignCategory(
+            ITransactionService _transactionService,
+            ICategoryService _categoryService
+            )
         {
             InitializeComponent();
+            transactionService = _transactionService;
+            categoryService = _categoryService;
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -46,14 +54,13 @@ namespace PersonalSpendingAnalysis.Dialogs
             this.comboBox1.ValueMember = "Value";
 
             //todo move this to service / repo
-            var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.OrderBy(x => x.Name);
+            var categories = categoryService.GetCategories().OrderBy(x => x.Name);
             foreach (var category in categories)
             {
                 this.comboBox1.Items.Add(new ComboboxItem(category.Name, category.Id));
             }
 
-            var thisTransaction = context.Transaction.Single(x => x.Id == transactionId);
+            var thisTransaction = transactionService.GetTransaction(transactionId);
 
             if (thisTransaction.CategoryId != null) {
                 this.comboBox1.SelectedValue = (object)thisTransaction.CategoryId;
@@ -69,22 +76,14 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void buttonSetCategory_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var thisTransaction = context.Transaction.Single(x => x.Id == transactionId);
-            thisTransaction.ManualCategory = true;
             ComboboxItem item = (ComboboxItem)this.comboBox1.SelectedItem;
-            thisTransaction.CategoryId = item.Value;
-            context.SaveChanges();
+            transactionService.UpdateTransactionCategory(transactionId, item.Value, "Manually Set", true);
             this.Close();
         }
 
         private void buttonResetCategory_Click(object sender, EventArgs e)
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var thisTransaction = context.Transaction.Single(x => x.Id == transactionId);
-            thisTransaction.ManualCategory = false;
-            thisTransaction.CategoryId = null;
-            context.SaveChanges();
+            transactionService.UpdateTransactionCategory(transactionId, null, null, false);
             this.Close();
         }
     }

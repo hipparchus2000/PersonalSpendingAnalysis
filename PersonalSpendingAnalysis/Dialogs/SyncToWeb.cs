@@ -1,26 +1,22 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
+﻿using IServices.Interfaces;
+using PersonalSpendingAnalysis.IServices;
 using PersonalSpendingAnalysis.Models;
-using PersonalSpendingAnalysis.Repo;
-using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
     public partial class SyncToWeb : Form
     {
-        public SyncToWeb()
+        IImportsAndExportService importsAndExportService;
+        ITransactionService transactionsService;
+        ICategoryService categoryService;
+
+        public SyncToWeb(IImportsAndExportService _importsAndExportService, ITransactionService _transactionsService, ICategoryService _categoryService)
         {
             InitializeComponent();
             var userRegistryKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("PSAauth");
@@ -33,6 +29,9 @@ namespace PersonalSpendingAnalysis.Dialogs
                 this.UsernameTextBox.Text = username;
                 this.passwordTextBox.Text = password;
             }
+            importsAndExportService = _importsAndExportService;
+            transactionsService = _transactionsService;
+            categoryService = _categoryService;
         }
 
         private void buttonSyncToWeb_Click(object sender, EventArgs e)
@@ -40,97 +39,49 @@ namespace PersonalSpendingAnalysis.Dialogs
             status.Text = "";
             var username = this.UsernameTextBox.Text;
             var password = this.passwordTextBox.Text;
-
-            var userRegistryKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("PSAauth");
-            userRegistryKey.SetValue("User", username);
-            userRegistryKey.SetValue("Pwd", password);
-            userRegistryKey.Close();
-
+            storeUserNameAndPasswordInRegistry(username, password);
             var deleteExistingTransactions = deleteExistingTransactionsCheckbox.Checked;
 
-            //todo move this to service
-
-            //LOGIN
-            var client = new RestClient("https://www.talkisbetter.com/api/auth");
-            var request = new RestRequest(Method.POST);
-            request.AddHeader("content-type", "application/json");
-            request.AddParameter("application/json", "{\r\n    \"username\":\""+username+"\",\r\n    \"password\":\""+password+"\"\r\n}\r\n", ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
-            if (response.StatusCode!=System.Net.HttpStatusCode.OK)
+            var loginResult = importsAndExportService.LoginToWebService(username, password);
+            if ( loginResult.success == false)
             {
-                status.AppendText(username+"failed to log in\r\n");
+                status.AppendText(username + "failed to log in\r\n");
                 return;
             }
-            dynamic loginResult = JsonConvert.DeserializeObject<dynamic>(response.Content);
-            var jwt = loginResult.token.Value;
-            var userId = (string)loginResult.userId.Value;
-            status.AppendText("userId: "+userId+"\r\n");
-
-            var context = new PersonalSpendingAnalysisRepo();
-            var localCategories = context.Categories.Select(x=> new {
-                Id = x.Id,
-                Name = x.Name,
-                SearchString = x.SearchString,
-                userId = userId
-            }).ToList();
-            var localTransactions = context.Transaction.Select(x => new TransactionModel
-            {
-                Id = x.Id,
-                amount = x.amount,
-                transactionDate = x.transactionDate,
-                Notes = x.Notes,
-                CategoryId = x.CategoryId,
-                SubCategory = x.SubCategory,
-                AccountId = x.AccountId,
-                SHA256 = x.SHA256,
-                userId = userId,
-                ManualCategory = x.ManualCategory
-            }).ToList();
-
-
+            status.AppendText("userId: " + loginResult.userId + "\r\n");
+            
             Thread backgroundThread = new Thread(
                     new ThreadStart(() =>
                     {
                         //categories first to make sure primary keys are ok
-                        //GET CATEGORIES
-                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
-                        request = new RestRequest(Method.GET);
-                        request.AddHeader("jwt", jwt);
-                        request.AddHeader("userId", userId);
-                        request.AddHeader("content-type", "application/json");
-                        response = client.Execute(request);
-                        if(response.StatusCode != System.Net.HttpStatusCode.OK)
+                        var categoryResponse = importsAndExportService.GetRemoteCategories(loginResult);
+                        if (categoryResponse.Success == false)
                         {
                             status.BeginInvoke(
                             new Action(() =>
-                            {
-                                status.AppendText("\r\nError encountered reading categories " + response.ErrorMessage + " \r\n");
-                            })
-                        );
+                                {
+                                    status.AppendText("\r\nError encountered reading categories " + categoryResponse.ErrorMessage + " \r\n");
+                                })
+                            );
+                            return;
                         }
-                        var remoteCategories = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
+
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully downloaded " + remoteCategories.Count + " categories\r\n");
+                                status.AppendText("\r\nsuccessfully downloaded " + categoryResponse.remoteCategories.Count + " categories\r\n");
                             })
                         );
-
 
                         var successfullyDeleted = 0;
                         var failedDelete = 0;
 
                         if (deleteExistingTransactions)
                         {
-                            foreach (var remoteCategory in remoteCategories)
+                            foreach (var remoteCategory in categoryResponse.remoteCategories)
                             {
-                                client = new RestClient("https://www.talkisbetter.com/api/bankcategorys/" + remoteCategory._id);
-                                request = new RestRequest(Method.DELETE);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                response = client.Execute(request);
-                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                var deleteResponseSuccess = importsAndExportService.DeleteRemoteCategory(loginResult, remoteCategory._id);
+                                if (deleteResponseSuccess)
                                 {
                                     successfullyDeleted++;
                                     status.BeginInvoke(
@@ -159,30 +110,39 @@ namespace PersonalSpendingAnalysis.Dialogs
                             );
                         }
 
+                        var localCategories = categoryService.GetCategories().Select(x => new {
+                            Id = x.Id,
+                            Name = x.Name,
+                            SearchString = x.SearchString,
+                            userId = loginResult.userId
+                        }).ToList();
+                        var localTransactions = transactionsService.GetTransactions().Select(x => new TransactionModel
+                        {
+                            Id = x.Id,
+                            amount = x.amount,
+                            transactionDate = x.transactionDate,
+                            Notes = x.Notes,
+                            CategoryId = x.CategoryId,
+                            SubCategory = x.SubCategory,
+                            AccountId = x.AccountId,
+                            SHA256 = x.SHA256,
+                            userId = loginResult.userId,
+                            ManualCategory = x.ManualCategory
+                        }).ToList();
+
 
                         //POST EACH NEW CATEGORY
                         var numberOfCategoriesAdded = 0;
                         var numberFailedAddCategories = 0;
-                        client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
                         foreach (var localCategory in localCategories)
                         {
-                            var matchingCategory = remoteCategories.SingleOrDefault(x => x.Id == localCategory.Id);
+                            var matchingCategory = categoryResponse.remoteCategories.SingleOrDefault(x => x.Id == localCategory.Id);
                             if (deleteExistingTransactions || matchingCategory == null)
                             {
                                 //no remote category for the localCategory
-                                //category.userId = userId;
-                                JsonSerializer serializer = new JsonSerializer();
-                                serializer.Converters.Add(new JavaScriptDateTimeConverter());
-                                serializer.NullValueHandling = NullValueHandling.Ignore;
+                                var postResponse = importsAndExportService.PostNewCategoryToRemote(loginResult,localCategory);
 
-                                string jsonCategory = JsonConvert.SerializeObject(localCategory, Formatting.Indented);
-                                request = new RestRequest(Method.POST);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                request.AddParameter("application/json", jsonCategory, ParameterType.RequestBody);
-                                response = client.Execute(request);
-                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                if (postResponse)
                                 {
                                     numberOfCategoriesAdded++;
                                     status.BeginInvoke(
@@ -216,25 +176,18 @@ namespace PersonalSpendingAnalysis.Dialogs
                             })
                         );
 
-                        //SAVE NEW TRANSACTIONS FROM WEB TO DB
+                        //SAVE NEW CATEGORIES FROM WEB TO DB
                         var numberAdded = 0;
                         var numberFailedAdd = 0;
-                        foreach (var remoteCategory in remoteCategories)  //localTransactionsToPushUp
+                        foreach (var remoteCategory in categoryResponse.remoteCategories)  
                         {
                             string stripped = remoteCategory.ToString();
                             stripped = stripped.Replace("{{", "{").Replace("}}", "}");
-                            var t = JsonConvert.DeserializeObject<Repo.Entities.Category>(stripped);
+                            var t = importsAndExportService.ExtractCategoryModelFromJson(stripped);
                             var matchingCategory = localCategories.SingleOrDefault(x => x.Id == t.Id);
                             if (matchingCategory == null)
                             {
-                                var newCategory = new Repo.Entities.Category
-                                {
-                                    Id = t.Id,
-                                    Name = t.Name,
-                                    SearchString = t.SearchString
-                                };
-                                context.Categories.Add(newCategory);
-                                context.SaveChanges();
+                                categoryService.AddNewCategory(t);
                             }
                         }
                         status.BeginInvoke(
@@ -249,18 +202,12 @@ namespace PersonalSpendingAnalysis.Dialogs
 
 
 
-                        //GET TRANSACTIONS
-                        client = new RestClient("https://www.talkisbetter.com/api/banks");
-                        request = new RestRequest(Method.GET);
-                        request.AddHeader("jwt", jwt);
-                        request.AddHeader("userId", userId);
-                        request.AddHeader("content-type", "application/json");
-                        response = client.Execute(request);
-                        var remoteTransactions = JsonConvert.DeserializeObject<dynamic[]>(response.Content);
+                        //TRANSACTIONS
+                        var remoteTransactions = importsAndExportService.GetRemoteTransactions(loginResult);
                         status.BeginInvoke(
                             new Action(() =>
                             {
-                                status.AppendText("\r\nsuccessfully downloaded " + remoteTransactions.Length + " transactions\r\n");
+                                status.AppendText("\r\nsuccessfully downloaded " + remoteTransactions.remoteTransactions.Count + " transactions\r\n");
                             })
                         );
 
@@ -269,15 +216,10 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                         if (deleteExistingTransactions)
                         {
-                            foreach (var remoteTransaction in remoteTransactions)  
+                            foreach (var remoteTransaction in remoteTransactions.remoteTransactions)  
                             {
-                                client = new RestClient("https://www.talkisbetter.com/api/banks/"+ remoteTransaction._id);
-                                request = new RestRequest(Method.DELETE);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                response = client.Execute(request);
-                                if(response.StatusCode==System.Net.HttpStatusCode.OK)
+                                var success = importsAndExportService.DeleteRemoteTransaction(loginResult, remoteTransaction._id);
+                                if(success)
                                 {
                                     successfullyDeleted++;
                                     status.BeginInvoke(
@@ -309,33 +251,17 @@ namespace PersonalSpendingAnalysis.Dialogs
                         }
 
                         
-
-
-
-
-
                         //POST EACH NEW TRANSACTION
                         numberAdded = 0;
                         numberFailedAdd = 0;
-                        client = new RestClient("https://www.talkisbetter.com/api/bank");
+
                         foreach (var localTransaction in localTransactions)  //localTransactionsToPushUp
                         {
-                            var matchingTransaction = remoteTransactions.SingleOrDefault(x => x.SHA256 == localTransaction.SHA256);
+                            var matchingTransaction = remoteTransactions.remoteTransactions.SingleOrDefault(x => x.SHA256 == localTransaction.SHA256);
                             if (deleteExistingTransactions || matchingTransaction == null)
                             {
-                                localTransaction.userId = userId;
-                                JsonSerializer serializer = new JsonSerializer();
-                                serializer.Converters.Add(new JavaScriptDateTimeConverter());
-                                serializer.NullValueHandling = NullValueHandling.Ignore;
-
-                                string jsonTransaction = JsonConvert.SerializeObject(localTransaction, Formatting.Indented);
-                                request = new RestRequest(Method.POST);
-                                request.AddHeader("jwt", jwt);
-                                request.AddHeader("userId", userId);
-                                request.AddHeader("content-type", "application/json");
-                                request.AddParameter("application/json", jsonTransaction, ParameterType.RequestBody);
-                                response = client.Execute(request);
-                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                var success = importsAndExportService.PostNewTransactionToRemote(loginResult, localTransaction);
+                                if (success)
                                 {
                                     numberAdded++;
                                     status.BeginInvoke(
@@ -370,28 +296,15 @@ namespace PersonalSpendingAnalysis.Dialogs
                         //SAVE NEW TRANSACTIONS FROM WEB TO DB
                         numberAdded = 0;
                         numberFailedAdd = 0;
-                        foreach (var remoteTransaction in remoteTransactions)  //localTransactionsToPushUp
+                        foreach (var remoteTransaction in remoteTransactions.remoteTransactions)  //localTransactionsToPushUp
                         {
                             string stripped = remoteTransaction.ToString();
                             stripped = stripped.Replace("{{", "{").Replace("}}", "}");
-                            var t = JsonConvert.DeserializeObject<TransactionModel>(stripped);
+                            var t = importsAndExportService.ExtractTransactionModelFromJson(stripped);
                             var matchingTransaction = localTransactions.SingleOrDefault(x => x.SHA256 == t.SHA256);
                             if (matchingTransaction == null)
                             {
-                                var newTransaction = new Repo.Entities.Transaction
-                                {
-                                    AccountId = t.AccountId,
-                                    amount = t.amount,
-                                    CategoryId = t.CategoryId,
-                                    ManualCategory = t.ManualCategory,
-                                    Id = t.Id,
-                                    SHA256 = t.SHA256,
-                                    transactionDate = t.transactionDate,
-                                    Notes = t.Notes,
-                                    SubCategory = t.SubCategory
-                                };
-                                context.Transaction.Add(newTransaction);
-                                context.SaveChanges();
+                                transactionsService.AddNewTransaction(remoteTransaction);
                             }
                         }
                         status.BeginInvoke(
@@ -410,6 +323,14 @@ namespace PersonalSpendingAnalysis.Dialogs
             backgroundThread.Start();
 
 
+        }
+
+        private void storeUserNameAndPasswordInRegistry(string username, string password)
+        {
+            var userRegistryKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("PSAauth");
+            userRegistryKey.SetValue("User", username);
+            userRegistryKey.SetValue("Pwd", password);
+            userRegistryKey.Close();
         }
     }
 }

@@ -25,14 +25,17 @@ namespace PersonalSpendingAnalysis.Repo
 
         public void AddTransaction(TransactionDto dto)
         {
-            Transaction.Add(new Repo.Entities.Transaction
+            Transaction.Add(new Transaction
             {
-                //todo use automapper instead
                 AccountId = null,
                 amount = dto.amount,
                 CategoryId = dto.CategoryId,
                 ManualCategory = dto.ManualCategory,
-
+                SHA256 = dto.SHA256,
+                SubCategory = dto.SubCategory,
+                Id = dto.Id,
+                Notes = dto.Notes,
+                transactionDate = dto.transactionDate
             });
             SaveChanges();
         }
@@ -237,8 +240,7 @@ namespace PersonalSpendingAnalysis.Repo
                         SHA256 = transaction.SHA256,
                         SubCategory = transaction.SubCategory,
                         transactionDate = transaction.transactionDate
-                    }
-                    );
+                    });
                     SaveChanges();
                     result.numberOfNewTransactions++;
                 }
@@ -298,14 +300,71 @@ namespace PersonalSpendingAnalysis.Repo
                 }).OrderByDescending(x => x.Amount)
                     .ToList();
             var result = new TransactionsWithCategoriesForChartsDto();
-            result.Transactions = transactions;
-            result.Categories = categories;
+            result.Transactions = Transaction.Include(x=>x.Category).Select(x=> new TransactionDto
+            {
+                AccountId = x.AccountId,
+                amount = x.amount,
+                Category = x.Category == null? null : new CategoryDto {
+                    Id = x.Category.Id,
+                    Name = x.Category.Name,
+                    SearchString = x.Category.SearchString
+                },
+                ManualCategory = x.ManualCategory,
+                Id = x.Id,
+                CategoryId = x.CategoryId,
+                Notes = x.Notes,
+                SHA256 = x.SHA256,
+                SubCategory = x.SubCategory,
+                transactionDate = x.transactionDate
+            }).ToList();
+            result.Categories = Categories.Select(x=>new CategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                SearchString = x.SearchString
+            }).ToList();
             return result;
         }
 
         public DateTime GetEarliestTransactionDate()
         {
             return Transaction.Min(x => x.transactionDate);
+        }
+
+        public void AddNewCategory(CategoryDto dto)
+        {
+            Categories.Add(new Category {
+                Id = dto.Id, Name = dto.Name, SearchString = dto.SearchString
+            });
+        }
+
+        public void RemoveCategory(CategoryDto dto)
+        {
+            foreach (var transaction in Transaction.Where(x => x.CategoryId == dto.Id))
+            {
+                transaction.Category = null;
+            }
+            SaveChanges();
+
+            var category = Categories.Single(x=>x.Id == dto.Id);
+            Categories.Remove(category);
+            SaveChanges();
+        }
+
+        public void UpdateCategorySearchString(Guid id, string text)
+        {
+            var category = Categories.Single(x => x.Id == id);
+            category.SearchString += "," + text;
+            SaveChanges();
+        }
+
+        public void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false)
+        {
+            var transaction = Transaction.Single(x => x.Id == id);
+            transaction.CategoryId = categoryId;
+            transaction.SubCategory = subCategory;
+            transaction.ManualCategory = manuallySet;
+            SaveChanges();
         }
     }
 }

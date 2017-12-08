@@ -1,16 +1,13 @@
-﻿using PersonalSpendingAnalysis.Repo;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Globalization;
-using PersonalSpendingAnalysis.Services;
+using IServices.Interfaces;
+using PersonalSpendingAnalysis.IServices;
 
 namespace PersonalSpendingAnalysis.Dialogs
 {
@@ -25,6 +22,8 @@ namespace PersonalSpendingAnalysis.Dialogs
     {
         SeriesChartType style;
         chartTypeEnum _chartType;
+        ITransactionService transactionService;
+        IQueryService queryService;
 
         static string[] ColourValues = new string[] {
             "FF0000", "00FF00", "0000FF", "FFFF00", "FF00FF", "00FFFF", "000000",
@@ -37,9 +36,11 @@ namespace PersonalSpendingAnalysis.Dialogs
             "E00000", "00E000", "0000E0", "E0E000", "E000E0", "00E0E0", "E0E0E0",
         };
 
-        public Charts()
+        public Charts(ITransactionService _transactionService, IQueryService _queryService)
         {
             InitializeComponent();
+            transactionService = _transactionService;
+            queryService = _queryService;
             _chartType = chartTypeEnum.monthByCategory;
         }
 
@@ -92,8 +93,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void drawMonthByCategoryChart()
         {
-            var context = new PersonalSpendingAnalysisRepo();
-            var transactions = context.Transaction.Include("Category")
+            var transactions = transactionService.GetTransactions()
                 .Where(x => (x.transactionDate > this.startDate.Value)
                 && (x.transactionDate < this.endDate.Value)
                 && (this.showDebitsOnly.Checked && x.amount < 0)
@@ -159,7 +159,7 @@ namespace PersonalSpendingAnalysis.Dialogs
         private void drawYearByCategoryChart()
         {
             //todo move to service / repo
-            var transactions = context.Transaction.Include("Category")
+            var transactions = transactionService.GetTransactions()
                 .Where(x => (x.transactionDate > this.startDate.Value)
                 && (x.transactionDate < this.endDate.Value)
                 && (this.showDebitsOnly.Checked && x.amount < 0)
@@ -223,7 +223,7 @@ namespace PersonalSpendingAnalysis.Dialogs
             style = SeriesChartType.Pie;
 
             //todo move this to service/repo
-            var categories = Queries.GetCategoryTotals(this.startDate.Value, this.endDate.Value, this.showDebitsOnly.Checked);
+            var categories = queryService.GetCategoryTotals(this.startDate.Value, this.endDate.Value, this.showDebitsOnly.Checked);
             var total = categories.Sum(x => x.Amount);
 
             this.chart.Series.Clear();

@@ -46,6 +46,9 @@
     <Compile Include="Models\CategoryTotal.cs" />
     <Compile Include="Models\ExportableModel.cs" />
     <Compile Include="Models\ImportResults.cs" />
+    <Compile Include="Models\LoginResult.cs" />
+    <Compile Include="Models\RemoteTransactionModel.cs" />
+    <Compile Include="Models\RemoteCategoryModel.cs" />
     <Compile Include="Models\TransactionModel.cs" />
     <Compile Include="Models\TransactionsAndCategoriesForChartsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

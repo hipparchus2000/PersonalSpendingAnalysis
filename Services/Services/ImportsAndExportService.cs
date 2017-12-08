@@ -8,6 +8,9 @@ using IRepositories.Interfaces;
 using Enums;
 using PersonalSpendingAnalysis.Dtos;
 using PersonalSpendingAnalysis.Models;
+using System.Collections.Generic;
+using RestSharp;
+using Newtonsoft.Json.Converters;
 
 namespace PersonalSpendingAnalysis.Services
 {
@@ -15,6 +18,8 @@ namespace PersonalSpendingAnalysis.Services
     public class ImportsAndExportService : IImportsAndExportService
     {
         IPersonalSpendingAnalysisRepo repo;
+
+        public dynamic jwt { get; private set; }
 
         public ImportsAndExportService(IPersonalSpendingAnalysisRepo _repo)
         {
@@ -168,6 +173,124 @@ namespace PersonalSpendingAnalysis.Services
                 }).ToList()
             };
             return repo.ImportCategoriesAndTransactions(exportableDto);
+        }
+
+        public LoginResult LoginToWebService(string username, string password)
+        {
+            var result = new LoginResult();
+            var client = new RestClient("https://www.talkisbetter.com/api/auth");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json");
+            request.AddParameter("application/json", "{\r\n    \"username\":\"" + username + "\",\r\n    \"password\":\"" + password + "\"\r\n}\r\n", ParameterType.RequestBody);
+            var response = client.Execute(request);
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                result.success = false;
+            }
+            dynamic loginResult = JsonConvert.DeserializeObject<dynamic>(response.Content);
+            result.jwt = loginResult.token.Value;
+            result.userId = (string)loginResult.userId.Value;
+            return result;
+        }
+
+        public RemoteCategoryModel GetRemoteCategories(LoginResult loginResult)
+        {
+            var result = new RemoteCategoryModel();
+            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            var response = client.Execute(request);
+            result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
+            result.ErrorMessage = response.ErrorMessage;
+            result.remoteCategories = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
+            return result;
+        }
+
+        public bool DeleteRemoteCategory(LoginResult loginResult, Guid id)
+        {
+            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys/" + id);
+            var request = new RestRequest(Method.DELETE);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            var response = client.Execute(request);
+            var result = response.StatusCode == System.Net.HttpStatusCode.OK;
+            return result;
+        }
+
+        public bool PostNewCategoryToRemote(LoginResult loginResult, object localCategory)
+        {
+            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Converters.Add(new JavaScriptDateTimeConverter());
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+
+            string jsonCategory = JsonConvert.SerializeObject(localCategory, Formatting.Indented);
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            request.AddParameter("application/json", jsonCategory, ParameterType.RequestBody);
+            var response = client.Execute(request);
+            return response.StatusCode == System.Net.HttpStatusCode.OK; 
+        }
+
+        public RemoteTransactionModel GetRemoteTransactions(LoginResult loginResult)
+        {
+            var result = new RemoteTransactionModel();
+            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            var response = client.Execute(request);
+            result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
+            result.ErrorMessage = response.ErrorMessage;
+            result.remoteTransactions = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
+            return result;
+        }
+
+        public bool DeleteRemoteTransaction(LoginResult loginResult, Guid id)
+        {
+            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions/" + id);
+            var request = new RestRequest(Method.DELETE);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            var response = client.Execute(request);
+            var result = response.StatusCode == System.Net.HttpStatusCode.OK;
+            return result;
+        }
+
+        public bool PostNewTransactionToRemote(LoginResult loginResult, object localTransaction)
+        {
+            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions");
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Converters.Add(new JavaScriptDateTimeConverter());
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+
+            string jsonTransaction = JsonConvert.SerializeObject(localTransaction, Formatting.Indented);
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("jwt", loginResult.jwt);
+            request.AddHeader("userId", loginResult.userId);
+            request.AddHeader("content-type", "application/json");
+            request.AddParameter("application/json", jsonTransaction, ParameterType.RequestBody);
+            var response = client.Execute(request);
+            return response.StatusCode == System.Net.HttpStatusCode.OK;
+        }
+
+        public CategoryModel ExtractCategoryModelFromJson(string stripped)
+        {
+            var t = JsonConvert.DeserializeObject<CategoryModel>(stripped);
+            return t;
+        }
+
+        public TransactionModel ExtractTransactionModelFromJson(string stripped)
+        {
+            var t = JsonConvert.DeserializeObject<TransactionModel>(stripped);
+            return t;
         }
     }
 }

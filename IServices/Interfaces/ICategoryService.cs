@@ -8,5 +8,8 @@ namespace IServices.Interfaces
     {
         List<CategoryModel> GetCategories();
         List<String> GetListOfCategories();
+        CategoryModel AddNewCategory(CategoryModel categoryModel);
+        void RemoveCategory(CategoryModel deletedCategory);
+        void UpdateCategorySearchString(Guid value, string text);
     }
 }

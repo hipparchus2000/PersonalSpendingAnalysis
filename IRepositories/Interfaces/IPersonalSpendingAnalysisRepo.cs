@@ -14,6 +14,7 @@ namespace IRepositories.Interfaces
         void AddTransaction(TransactionDto dto);
         List<TransactionDto> GetTransactions(global::Enums.orderBy currentOrder);
         List<BudgetDto> GetBudgets();
+        void AddNewCategory(CategoryDto categoryDto);
         List<CategoryTotalDto> GetCategoryTotals(DateTime startDate, DateTime endDate, bool showDebitsOnly);
         DateTime GetEarliestTransactionDate();
         List<CategoryTotalDto> GetCategoryTotalsForAllTime();
@@ -21,5 +22,8 @@ namespace IRepositories.Interfaces
         ImportResult ImportCategoriesAndTransactions(ExportableDto import);
         void CreateOrUpdateBudgets(List<BudgetDto> p);
         TransactionsWithCategoriesForChartsDto GetTransactionsWithCategoriesForCharts(DateTime start, DateTime end);
+        void RemoveCategory(CategoryDto categoryDto);
+        void UpdateCategorySearchString(Guid id, string text);
+        void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false);
     }
 }

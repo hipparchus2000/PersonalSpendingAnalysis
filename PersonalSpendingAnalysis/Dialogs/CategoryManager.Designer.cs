@@ -103,9 +103,7 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void refreshCategories()
         {
-
-            var context = new PersonalSpendingAnalysisRepo();
-            var categories = context.Categories.OrderBy(x => x.Name);
+            var categories = categoryService.GetCategories().OrderBy(x => x.Name);
 
             foreach (var category in categories)
             {

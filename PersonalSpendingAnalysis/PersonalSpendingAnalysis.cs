@@ -64,7 +64,7 @@ namespace PersonalSpendingAnalysis
 
         private void manageCategories_Click(object sender, EventArgs e)
         {
-            var dlg = new CategoryManager();
+            var dlg = new CategoryManager(categoryService);
             dlg.Show();
         }
 
@@ -146,8 +146,11 @@ namespace PersonalSpendingAnalysis
                         }
                     }
 
-                    //todo work out how to save changes above
-                    context.SaveChanges();
+                    //todo move categorisation task to service to improve testability
+                    foreach(var datarow in datarows)
+                    {
+                        transactionService.UpdateTransactionCategory(datarow.Id, datarow.CategoryId, datarow.SubCategory);
+                    }
                     
                     MessageBox.Show("Autocategorization completed!");
                     progressBar1.BeginInvoke(
@@ -212,7 +215,7 @@ namespace PersonalSpendingAnalysis
 
         private void buttonCharts_Click(object sender, EventArgs e)
         {
-            var dlg = new Charts();
+            var dlg = new Charts(transactionService,queriesService);
             dlg.Show();
         }
 
@@ -228,7 +231,7 @@ namespace PersonalSpendingAnalysis
             {
                 var row = this.transactionsGridView.Rows[e.RowIndex];
                 var description = row.Cells[2].Value.ToString();
-                var dlg = new AddSearchStringToCategory();
+                var dlg = new AddSearchStringToCategory(categoryService);
                 dlg.setSearchString(description);
                 dlg.Show();
             }
@@ -237,7 +240,7 @@ namespace PersonalSpendingAnalysis
             {
                 var row = this.transactionsGridView.Rows[e.RowIndex];
                 var id = row.Cells[0].Value.ToString();
-                var dlg = new ManuallyAssignCategory();
+                var dlg = new ManuallyAssignCategory(transactionService, categoryService);
                 dlg.setTransactionId(new Guid(id));
                 dlg.ShowDialog();
                 refresh();
@@ -272,7 +275,7 @@ namespace PersonalSpendingAnalysis
 
         private void buttonWebSync_Click(object sender, EventArgs e)
         {
-            var dlg = new SyncToWeb();
+            var dlg = new SyncToWeb(importsAndExportsService,transactionService,categoryService);
             dlg.ShowDialog();
         }
 
