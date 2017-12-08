@@ -4,8 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTests
 {
     [TestClass]
-    public class AggregatesServiceTest
+    public class ReportsServiceTest
     {
+        //void createReport(TreeNodeCollection nodes, string filename, bool includeTransactions);
         [TestMethod]
         public void TestMethod1()
         {
