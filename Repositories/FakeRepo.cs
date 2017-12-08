@@ -11,117 +11,271 @@ namespace Repositories
 {
     public class FakeRepo : IPersonalSpendingAnalysisRepo
     {
-        List<CategoryDto> categories;
-        List<TransactionDto> transactions;
-        List<BudgetDto> budgets;
+        List<CategoryDto> fakeCategories;
+        List<TransactionDto> fakeTransactions;
+        List<BudgetDto> fakeBudgets;
 
         public void AddNewCategory(CategoryDto categoryDto)
         {
-            categories.Add(categoryDto);
+            fakeCategories.Add(categoryDto);
         }
 
         public void AddTransaction(TransactionDto dto)
         {
-            transactions.Add(dto);
+            fakeTransactions.Add(dto);
         }
 
         public void CreateOrUpdateBudgets(List<BudgetDto> p)
         {
             foreach(var budget in p)
             {
-                var testBudget = budgets.SingleOrDefault(x => x.CategoryName == budget.CategoryName);
+                var testBudget = fakeBudgets.SingleOrDefault(x => x.CategoryName == budget.CategoryName);
                 if (testBudget == null)
                 {
-                    budgets.Add(budget);
+                    fakeBudgets.Add(budget);
                 }
                 else
                 {
-                    budgets.Remove(testBudget);
-                    budgets.Add(budget);
+                    fakeBudgets.Remove(testBudget);
+                    fakeBudgets.Add(budget);
                 }
             }
         }
 
         public List<BudgetDto> GetBudgets()
         {
-            return budgets;
+            return fakeBudgets;
         }
 
         public List<CategoryDto> GetCategories()
         {
-            return categories;
+            return fakeCategories.OrderBy(x => x.Name).ToList();
         }
 
         public List<string> GetCategoryNames()
         {
-            return categories.Select(x => x.Name).ToList();
+            return fakeCategories.Select(x => x.Name).ToList();
         }
 
         public List<CategoryTotalDto> GetCategoryTotals(DateTime startDate, DateTime endDate, bool showDebitsOnly)
         {
-            throw new NotImplementedException();
+            var transactions = fakeTransactions
+                .Where(x => (x.transactionDate > startDate)
+                && (x.transactionDate < endDate)
+                );
+
+            var categories = transactions
+                .GroupBy(x => new { CategoryName = x.Category.Name })
+                .Select(x => new CategoryTotalDto
+                {
+                    CategoryName = x.Key.CategoryName,
+                    Amount = -1 * x.Sum(y => y.amount)
+                }).OrderByDescending(x => x.Amount)
+                    .ToList();
+            if (showDebitsOnly)
+                categories = categories.Where(x => x.Amount > 0).ToList();
+            return categories;
         }
 
         public List<CategoryTotalDto> GetCategoryTotalsForAllTime()
         {
-            throw new NotImplementedException();
+            var transactions = fakeTransactions;
+            var categories = transactions
+                .GroupBy(x => new { CategoryName = x.Category.Name })
+                .Select(x => new CategoryTotalDto
+                {
+                    CategoryName = x.Key.CategoryName,
+                    Amount = -1 * x.Sum(y => y.amount)
+                }).OrderByDescending(x => x.Amount)
+                    .ToList();
+            return categories;
         }
 
         public DateTime GetEarliestTransactionDate()
         {
-            throw new NotImplementedException();
+            return fakeTransactions.Min(x => x.transactionDate);
         }
 
         public double GetNumberOfDaysOfRecordsInSystem()
         {
-            throw new NotImplementedException();
+            var earliestDate = fakeTransactions.Select(x => x.transactionDate).Min(x => x);
+            var latestDate = fakeTransactions.Select(x => x.transactionDate).Max(x => x);
+            var datespan = latestDate.Subtract(earliestDate);
+            return datespan.TotalDays;
         }
 
         public TransactionDto GetTransaction(string id)
         {
-            throw new NotImplementedException();
+            Guid ID = Guid.Parse(id);
+            return fakeTransactions.Single(x => x.Id == ID);
         }
 
         public List<TransactionDto> GetTransactions()
         {
-            return transactions;
+            return fakeTransactions;
         }
 
         public List<TransactionDto> GetTransactions(orderBy currentOrder)
         {
-            throw new NotImplementedException();
+            var datarows = new List<TransactionDto>().ToList();
+
+            switch (currentOrder)
+            {
+                case orderBy.transactionDateDescending:
+                    datarows = fakeTransactions.OrderByDescending(x => x.transactionDate).ToList();
+                    break;
+                case orderBy.transactionDateAscending:
+                    datarows = fakeTransactions.OrderBy(x => x.transactionDate).ToList();
+                    break;
+                case orderBy.amountAscending:
+                    datarows = fakeTransactions.OrderBy(x => x.amount).ToList();
+                    break;
+                case orderBy.amountDescending:
+                    datarows = fakeTransactions.OrderByDescending(x => x.amount).ToList();
+                    break;
+                case orderBy.categoryAscending:
+                    datarows = fakeTransactions.OrderBy(x => x.Category == null ? "" : x.Category.Name).ToList();
+                    break;
+                case orderBy.categoryDescending:
+                    datarows = fakeTransactions.OrderByDescending(x => x.Category == null ? "" : x.Category.Name).ToList();
+                    break;
+            }
+            return datarows;
         }
 
         public TransactionsWithCategoriesForChartsDto GetTransactionsWithCategoriesForCharts(DateTime start, DateTime end)
         {
-            throw new NotImplementedException();
+            var transactions = fakeTransactions
+                .Where(x => (x.transactionDate > start)
+                    && (x.transactionDate < end)
+                );
+            var categories = transactions
+                .GroupBy(x => new { CategoryName = x.Category.Name })
+                .Select(x => new
+                {
+                    CategoryName = x.Key.CategoryName,
+                    Amount = x.Sum(y => y.amount)
+                }).OrderByDescending(x => x.Amount)
+                    .ToList();
+            var result = new TransactionsWithCategoriesForChartsDto();
+            result.Transactions = fakeTransactions.Select(x => new TransactionDto
+            {
+                AccountId = x.AccountId,
+                amount = x.amount,
+                Category = x.Category == null ? null : new CategoryDto
+                {
+                    Id = x.Category.Id,
+                    Name = x.Category.Name,
+                    SearchString = x.Category.SearchString
+                },
+                ManualCategory = x.ManualCategory,
+                Id = x.Id,
+                CategoryId = x.CategoryId,
+                Notes = x.Notes,
+                SHA256 = x.SHA256,
+                SubCategory = x.SubCategory,
+                transactionDate = x.transactionDate
+            }).ToList();
+            result.Categories = fakeCategories.Select(x => new CategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                SearchString = x.SearchString
+            }).ToList();
+            return result;
         }
 
         public ImportResult ImportCategoriesAndTransactions(ExportableDto import)
         {
-            throw new NotImplementedException();
+            var result = new ImportResult();
+
+            //do the categories first to avoid foreign key issues
+            foreach (var category in import.categories)
+            {
+                if (fakeCategories.SingleOrDefault(x => x.Id == category.Id) != null)
+                {
+                    //this method aggregates search strings - todo perhaps give user the choice to aggregate or
+                    //replace or keep search strings.
+                    result.numberOfDuplicateCategories++;
+                    var oldCategory = fakeCategories.Single(x => x.Id == category.Id);
+                    var searchStrings = oldCategory.SearchString.Split(',').ToList();
+                    searchStrings.AddRange(category.SearchString.Split(','));
+                    var uniqueSearchStrings = searchStrings.Distinct();
+                    oldCategory.SearchString = string.Join(",", uniqueSearchStrings);
+                }
+                else
+                {
+                    fakeCategories.Add(new CategoryDto
+                    {
+                        Id = category.Id,
+                        Name = category.Name,
+                        SearchString = category.Name
+                    });
+                    result.numberOfNewCategories++;
+                }
+            }
+
+            foreach (var transaction in import.transactions)
+            {
+                if (fakeTransactions.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
+                {
+                    //import the transaction
+                    fakeTransactions.Add(new TransactionDto
+                    {
+                        AccountId = transaction.AccountId,
+                        amount = transaction.amount,
+                        Category = null, //avoid making duplicate category
+                        ManualCategory = transaction.ManualCategory,
+                        Id = transaction.Id,
+                        CategoryId = transaction.CategoryId,
+                        Notes = transaction.Notes,
+                        SHA256 = transaction.SHA256,
+                        SubCategory = transaction.SubCategory,
+                        transactionDate = transaction.transactionDate
+                    });
+                    result.numberOfNewTransactions++;
+                }
+                else
+                {
+                    //transaction is already here
+                    result.numberOfDuplicateTransactions++;
+                }
+            }
+
+            return result;
         }
 
         public void RemoveCategory(CategoryDto categoryDto)
         {
-            categories.Remove(categoryDto);
+            fakeCategories.Remove(categoryDto);
         }
 
         public void UpdateCategorySearchString(Guid id, string text)
         {
-            var category = categories.Single(x => x.Id == id);
+            var category = fakeCategories.Single(x => x.Id == id);
             var newCategory = new CategoryDto
             {
                 Id = id,
                 Name = category.Name,
                 SearchString = category.SearchString + "," + text
             };
-            categories.Remove(category);
+            fakeCategories.Remove(category);
         }
 
         public void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false)
         {
-            throw new NotImplementedException();
+            var transaction = fakeTransactions.Single(x => x.Id == id);
+            var category = categoryId == null? null : fakeCategories.Single(x => x.Id == categoryId);
+
+            var replacementTransaction = new TransactionDto
+            {
+                CategoryId = categoryId, AccountId = transaction.AccountId, amount = transaction.amount,
+                Id = id, ManualCategory = manuallySet, SHA256 = transaction.SHA256, SubCategory = subCategory,
+                Notes = transaction.Notes, transactionDate = transaction.transactionDate,
+                Category = category 
+            };
+            fakeTransactions.Remove(transaction);
+            fakeTransactions.Add(replacementTransaction);
         }
     }
 }
