@@ -15,11 +15,11 @@ using Newtonsoft.Json.Converters;
 namespace PersonalSpendingAnalysis.Services
 {
 
+
     public class ImportsAndExportService : IImportsAndExportService
     {
         IPersonalSpendingAnalysisRepo repo;
-
-        public dynamic jwt { get; private set; }
+        public string baseUri = "https://www.talkisbetter.com/api/";
 
         public ImportsAndExportService(IPersonalSpendingAnalysisRepo _repo)
         {
@@ -178,7 +178,7 @@ namespace PersonalSpendingAnalysis.Services
         public LoginResult LoginToWebService(string username, string password)
         {
             var result = new LoginResult();
-            var client = new RestClient("https://www.talkisbetter.com/api/auth");
+            var client = new RestClient(baseUri+"auth");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
             request.AddParameter("application/json", "{\r\n    \"username\":\"" + username + "\",\r\n    \"password\":\"" + password + "\"\r\n}\r\n", ParameterType.RequestBody);
@@ -198,7 +198,7 @@ namespace PersonalSpendingAnalysis.Services
         public RemoteCategoryModel GetRemoteCategories(LoginResult loginResult)
         {
             var result = new RemoteCategoryModel();
-            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+            var client = new RestClient(baseUri+"bankcategorys");
             var request = new RestRequest(Method.GET);
             request.AddHeader("jwt", loginResult.jwt);
             request.AddHeader("userId", loginResult.userId);
@@ -213,7 +213,7 @@ namespace PersonalSpendingAnalysis.Services
 
         public bool DeleteRemoteCategory(LoginResult loginResult, Guid id)
         {
-            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys/" + id);
+            var client = new RestClient(baseUri+"bankcategorys/" + id);
             var request = new RestRequest(Method.DELETE);
             request.AddHeader("jwt", loginResult.jwt);
             request.AddHeader("userId", loginResult.userId);
@@ -225,7 +225,7 @@ namespace PersonalSpendingAnalysis.Services
 
         public bool PostNewCategoryToRemote(LoginResult loginResult, object localCategory)
         {
-            var client = new RestClient("https://www.talkisbetter.com/api/bankcategorys");
+            var client = new RestClient(baseUri+"bankcategorys");
             JsonSerializer serializer = new JsonSerializer();
             serializer.Converters.Add(new JavaScriptDateTimeConverter());
             serializer.NullValueHandling = NullValueHandling.Ignore;
@@ -243,7 +243,7 @@ namespace PersonalSpendingAnalysis.Services
         public RemoteTransactionModel GetRemoteTransactions(LoginResult loginResult)
         {
             var result = new RemoteTransactionModel();
-            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions");
+            var client = new RestClient(baseUri+"banks");
             var request = new RestRequest(Method.GET);
             request.AddHeader("jwt", loginResult.jwt);
             request.AddHeader("userId", loginResult.userId);
@@ -258,7 +258,7 @@ namespace PersonalSpendingAnalysis.Services
 
         public bool DeleteRemoteTransaction(LoginResult loginResult, Guid id)
         {
-            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions/" + id);
+            var client = new RestClient(baseUri+"banks/" + id);
             var request = new RestRequest(Method.DELETE);
             request.AddHeader("jwt", loginResult.jwt);
             request.AddHeader("userId", loginResult.userId);
@@ -270,7 +270,7 @@ namespace PersonalSpendingAnalysis.Services
 
         public bool PostNewTransactionToRemote(LoginResult loginResult, object localTransaction)
         {
-            var client = new RestClient("https://www.talkisbetter.com/api/banktransactions");
+            var client = new RestClient(baseUri+"banks");
             JsonSerializer serializer = new JsonSerializer();
             serializer.Converters.Add(new JavaScriptDateTimeConverter());
             serializer.NullValueHandling = NullValueHandling.Ignore;
