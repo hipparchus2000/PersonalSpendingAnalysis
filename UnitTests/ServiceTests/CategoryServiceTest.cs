@@ -4,7 +4,7 @@ using UnitTests.ServiceTests;
 using PersonalSpendingAnalysis.Models;
 using System.Collections.Generic;
 
-namespace UnitTests
+namespace UnitTests.ServiceTests
 {
     [TestClass]
     public class CategoryServiceTest : ServiceTestBaseClass

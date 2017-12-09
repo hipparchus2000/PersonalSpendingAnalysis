@@ -7,10 +7,11 @@ namespace IRepositories.Interfaces
 {
     public interface IPersonalSpendingAnalysisRepo
     {
+        void ClearFakeRepo();
         List<TransactionDto> GetTransactions();
         List<CategoryDto> GetCategories();
         List<string> GetCategoryNames();
-        TransactionDto GetTransaction(string id);
+        TransactionDto GetTransaction(string sha);
         void AddTransaction(TransactionDto dto);
         List<TransactionDto> GetTransactions(global::Enums.orderBy currentOrder);
         List<BudgetDto> GetBudgets();

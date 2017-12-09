@@ -11,9 +11,9 @@ namespace Repositories
 {
     public class FakeRepo : IPersonalSpendingAnalysisRepo
     {
-        List<CategoryDto> fakeCategories;
-        List<TransactionDto> fakeTransactions;
-        List<BudgetDto> fakeBudgets;
+        static List<CategoryDto> fakeCategories;
+        static List<TransactionDto> fakeTransactions;
+        static List<BudgetDto> fakeBudgets;
 
         public FakeRepo()
         {
@@ -30,6 +30,13 @@ namespace Repositories
         public void AddTransaction(TransactionDto dto)
         {
             fakeTransactions.Add(dto);
+        }
+
+        public void ClearFakeRepo()
+        {
+            fakeBudgets = new List<BudgetDto>();
+            fakeTransactions = new List<TransactionDto>();
+            fakeCategories = new List<CategoryDto>();
         }
 
         public void CreateOrUpdateBudgets(List<BudgetDto> p)
@@ -113,8 +120,7 @@ namespace Repositories
 
         public TransactionDto GetTransaction(string id)
         {
-            Guid ID = Guid.Parse(id);
-            return fakeTransactions.Single(x => x.Id == ID);
+            return fakeTransactions.SingleOrDefault(x => x.SHA256 == id);
         }
 
         public List<TransactionDto> GetTransactions()
@@ -222,7 +228,7 @@ namespace Repositories
                     {
                         Id = category.Id,
                         Name = category.Name,
-                        SearchString = category.Name
+                        SearchString = category.SearchString
                     });
                     result.numberOfNewCategories++;
                 }

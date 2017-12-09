@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.ServiceTests;
 
-namespace UnitTests
+namespace UnitTests.ServiceTests
 {
     [TestClass]
     public class ReportsServiceTest : ServiceTestBaseClass

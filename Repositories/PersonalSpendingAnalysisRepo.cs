@@ -97,10 +97,15 @@ namespace PersonalSpendingAnalysis.Repo
             return datespan.TotalDays;
         }
 
-        public TransactionDto GetTransaction(string id)
+        /// <summary>
+        /// Fetches a transaction or Null given the SHA256 for the record
+        /// </summary>
+        /// <param name="sha"></param>
+        /// <returns>the matching TransactionDto or null</returns>
+        public TransactionDto GetTransaction(string sha)
         {
             //todo use automapper
-            var existingRowForThisSHA256 = Transaction.SingleOrDefault(x => x.SHA256 == id);
+            var existingRowForThisSHA256 = Transaction.SingleOrDefault(x => x.SHA256 == sha);
             if (existingRowForThisSHA256 == null) return null;
             return MapTransactionToTransactionDto(existingRowForThisSHA256);
         }
@@ -371,6 +376,11 @@ namespace PersonalSpendingAnalysis.Repo
             transaction.SubCategory = subCategory;
             transaction.ManualCategory = manuallySet;
             SaveChanges();
+        }
+
+        public void ClearFakeRepo()
+        {
+            throw new NotImplementedException();
         }
     }
 }

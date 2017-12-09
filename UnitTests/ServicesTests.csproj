@@ -76,7 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ServiceTests\ReportsServiceTest.cs" />
-    <Compile Include="ServiceTests\ImportsAndExportService.cs" />
+    <Compile Include="ServiceTests\ImportsAndExportServiceTest.cs" />
     <Compile Include="ServiceTests\BudgetsServiceTest.cs" />
     <Compile Include="ServiceTests\CategoryServiceTest.cs" />
     <Compile Include="ServiceTests\QueryServiceTest.cs" />
@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="testCsvs\testCsv2.csv" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dtos\Dtos.csproj">
@@ -116,6 +117,9 @@
       <Project>{8eeb7ed2-29b7-45ea-98ed-bca93a133a1d}</Project>
       <Name>Services</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="testCsvs\testCsv1.csv" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

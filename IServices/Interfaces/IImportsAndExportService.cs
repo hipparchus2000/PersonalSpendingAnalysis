@@ -6,7 +6,7 @@ namespace PersonalSpendingAnalysis.IServices
 {
     public interface IImportsAndExportService
     {
-        ImportResults ImportFile(string fileName);
+        ImportResults ImportCsv(string csvText);
         string GetExportableText();
         ImportResult ImportJson(string fileText);
         LoginResult LoginToWebService(string username, string password);

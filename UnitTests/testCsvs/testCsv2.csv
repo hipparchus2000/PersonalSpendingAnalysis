@@ -1,0 +1,4 @@
+﻿Date, Type, Description, Value, Balance, Account Name, Account Number
+
+06/12/2017,POS,"'XYZ 06DEC17 C , PLACE NAME2 , ADDRESS2",-30.00,0.00,"'accountName","'accountNumber",
+05/12/2017,POS,"'XYZ 06DEC17 C , PLACE NAME3 , ADDRESS3",-40.00,0.00,"'accountName","'accountNumber",

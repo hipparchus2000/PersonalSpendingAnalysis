@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.ServiceTests;
 using PersonalSpendingAnalysis.Models;
 
-namespace UnitTests
+namespace UnitTests.ServiceTests
 {
     [TestClass]
     public class TransactionServiceTest : ServiceTestBaseClass

@@ -27,10 +27,9 @@ namespace PersonalSpendingAnalysis.Services
         }
 
 
-        public ImportResults ImportFile(string fileName)
+        public ImportResults ImportCsv(string csvText)
         {
             ImportResults results = new ImportResults();
-            string csvText = System.IO.File.ReadAllText(fileName);
             csvText = csvText.Replace("\n", "");
             var importLines = csvText.Split('\r');
 
@@ -52,14 +51,14 @@ namespace PersonalSpendingAnalysis.Services
                         results.NumberOfRecordsImported++;
 
                         var columns = purgeCommasInTextFields(importLine).Split(',');
-                        var id = sha256_hash(importLine);
+                        var sha = sha256_hash(importLine);
 
                         DateTime tDate;
                         DateTime.TryParse(columns[0], out tDate);
                         decimal tAmount;
                         Decimal.TryParse(columns[3], out tAmount);
 
-                        var existingRowForThisSHA256 = repo.GetTransaction(id);
+                        var existingRowForThisSHA256 = repo.GetTransaction(sha);
 
                         if (existingRowForThisSHA256 == null)
                         {
@@ -67,10 +66,11 @@ namespace PersonalSpendingAnalysis.Services
 
                             var dto = new TransactionDto
                             {
+                                Id = Guid.NewGuid(),
                                 transactionDate = tDate,
                                 amount = tAmount,
                                 Notes = columns[2].Replace("\"", ""),
-                                SHA256 = id,
+                                SHA256 = sha,
                             };
 
                             repo.AddTransaction(dto);

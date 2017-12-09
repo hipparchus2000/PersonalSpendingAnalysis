@@ -49,7 +49,8 @@ namespace PersonalSpendingAnalysis
             DialogResult result = importCsvDialog.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                var results = importsAndExportsService.ImportFile(importCsvDialog.FileName);
+                string csvText = File.ReadAllText(importCsvDialog.FileName);
+                var results = importsAndExportsService.ImportCsv(csvText);
                 
                 MessageBox.Show("Import finished ( "+ results.importId+" ) "+ "\r" +
                     "number of fields per row = " + results.NumberOfFieldsFound + "\r" +
