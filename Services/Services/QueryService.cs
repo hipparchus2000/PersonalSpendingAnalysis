@@ -71,6 +71,10 @@ namespace PersonalSpendingAnalysis.Services
                     SHA256 = x.SHA256,
                     SubCategory = x.SubCategory,
                     transactionDate = x.transactionDate
+                }).ToList(),
+                CategoryTotals = dto.CategoryTotals.Select(x=>new CategoryTotal
+                {
+                    CategoryName = x.CategoryName, Amount = x.Amount
                 }).ToList()
             };
             return model;

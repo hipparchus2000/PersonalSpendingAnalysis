@@ -204,12 +204,25 @@ namespace PersonalSpendingAnalysis.Dialogs
 
                         //TRANSACTIONS
                         var remoteTransactions = importsAndExportService.GetRemoteTransactions(loginResult);
-                        status.BeginInvoke(
-                            new Action(() =>
-                            {
-                                status.AppendText("\r\nsuccessfully downloaded " + remoteTransactions.remoteTransactions.Count + " transactions\r\n");
-                            })
-                        );
+                        if (remoteTransactions.Success)
+                        {
+                            status.BeginInvoke(
+                                new Action(() =>
+                                {
+                                    status.AppendText("\r\nsuccessfully downloaded " + remoteTransactions.remoteTransactions.Count + " transactions\r\n");
+                                })
+                            );
+                        }
+                        else
+                        {
+                            status.BeginInvoke(
+                                new Action(() =>
+                                {
+                                    status.AppendText("\r\failed to download transactions " + remoteTransactions.ErrorMessage + " \r\n");
+                                })
+                            );
+                            return;
+                        }
 
                         successfullyDeleted = 0;
                         failedDelete = 0;

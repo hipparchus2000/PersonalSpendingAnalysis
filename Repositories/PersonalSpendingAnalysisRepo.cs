@@ -323,6 +323,12 @@ namespace PersonalSpendingAnalysis.Repo
                 Name = x.Name,
                 SearchString = x.SearchString
             }).ToList();
+            result.CategoryTotals = categories.Select(x => new CategoryTotalDto
+            {
+                CategoryName = x.CategoryName,
+                Amount = x.Amount
+            }).ToList();
+
             return result;
         }
 

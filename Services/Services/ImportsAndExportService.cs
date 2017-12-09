@@ -186,7 +186,9 @@ namespace PersonalSpendingAnalysis.Services
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 result.success = false;
+                return result;
             }
+            result.success = true;
             dynamic loginResult = JsonConvert.DeserializeObject<dynamic>(response.Content);
             result.jwt = loginResult.token.Value;
             result.userId = (string)loginResult.userId.Value;
@@ -204,6 +206,7 @@ namespace PersonalSpendingAnalysis.Services
             var response = client.Execute(request);
             result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
             result.ErrorMessage = response.ErrorMessage;
+            if (result.Success == false) return result;
             result.remoteCategories = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
             return result;
         }
@@ -248,6 +251,7 @@ namespace PersonalSpendingAnalysis.Services
             var response = client.Execute(request);
             result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
             result.ErrorMessage = response.ErrorMessage;
+            if (result.Success == false) return result;
             result.remoteTransactions = JsonConvert.DeserializeObject<List<dynamic>>(response.Content);
             return result;
         }
