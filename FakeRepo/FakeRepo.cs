@@ -15,6 +15,13 @@ namespace Repositories
         List<TransactionDto> fakeTransactions;
         List<BudgetDto> fakeBudgets;
 
+        public FakeRepo()
+        {
+            fakeCategories = new List<CategoryDto>();
+            fakeTransactions = new List<TransactionDto>();
+            fakeBudgets = new List<BudgetDto>();
+        }
+
         public void AddNewCategory(CategoryDto categoryDto)
         {
             fakeCategories.Add(categoryDto);
@@ -44,7 +51,7 @@ namespace Repositories
 
         public List<BudgetDto> GetBudgets()
         {
-            return fakeBudgets;
+            return fakeBudgets.OrderBy(x => x.CategoryName).ToList();
         }
 
         public List<CategoryDto> GetCategories()
@@ -247,7 +254,8 @@ namespace Repositories
 
         public void RemoveCategory(CategoryDto categoryDto)
         {
-            fakeCategories.Remove(categoryDto);
+            var dto = fakeCategories.Single(x => x.Id == categoryDto.Id);
+            fakeCategories.Remove(dto);
         }
 
         public void UpdateCategorySearchString(Guid id, string text)
@@ -260,12 +268,13 @@ namespace Repositories
                 SearchString = category.SearchString + "," + text
             };
             fakeCategories.Remove(category);
+            fakeCategories.Add(newCategory);
         }
 
         public void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false)
         {
             var transaction = fakeTransactions.Single(x => x.Id == id);
-            var category = categoryId == null? null : fakeCategories.Single(x => x.Id == categoryId);
+            var category = categoryId == null? null : fakeCategories.SingleOrDefault(x => x.Id == categoryId);
 
             var replacementTransaction = new TransactionDto
             {

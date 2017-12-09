@@ -256,7 +256,7 @@ namespace PersonalSpendingAnalysis.Repo
 
         public List<BudgetDto> GetBudgets()
         {
-            var budgetList = Budgets.Select(x => new BudgetDto { CategoryName = x.Category.Name, Amount = x.amount }).ToList();
+            var budgetList = Budgets.Select(x => new BudgetDto { CategoryName = x.Category.Name, Amount = x.amount }).OrderBy(x=>x.CategoryName).ToList();
             return budgetList;
         }
 
