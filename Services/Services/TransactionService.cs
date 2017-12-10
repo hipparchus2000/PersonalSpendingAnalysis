@@ -44,7 +44,7 @@ namespace Services.Services
 
         public TransactionModel GetTransaction(Guid transactionId)
         {
-            var dto = repo.GetTransaction(transactionId.ToString());
+            var dto = repo.GetTransaction(transactionId);
             return new TransactionModel
             {
                 CategoryId = dto.CategoryId,

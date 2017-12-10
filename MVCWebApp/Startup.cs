@@ -9,6 +9,7 @@ namespace MVCWebApp
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            //todo DI in here
         }
     }
 }

@@ -118,9 +118,14 @@ namespace Repositories
             return datespan.TotalDays;
         }
 
-        public TransactionDto GetTransaction(string id)
+        public TransactionDto GetTransaction(string sha)
         {
-            return fakeTransactions.SingleOrDefault(x => x.SHA256 == id);
+            return fakeTransactions.SingleOrDefault(x => x.SHA256 == sha);
+        }
+
+        public TransactionDto GetTransaction(Guid id)
+        {
+            return fakeTransactions.SingleOrDefault(x => x.Id == id);
         }
 
         public List<TransactionDto> GetTransactions()

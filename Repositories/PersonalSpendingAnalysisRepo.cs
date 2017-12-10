@@ -104,10 +104,21 @@ namespace PersonalSpendingAnalysis.Repo
         /// <returns>the matching TransactionDto or null</returns>
         public TransactionDto GetTransaction(string sha)
         {
-            //todo use automapper
             var existingRowForThisSHA256 = Transaction.SingleOrDefault(x => x.SHA256 == sha);
             if (existingRowForThisSHA256 == null) return null;
             return MapTransactionToTransactionDto(existingRowForThisSHA256);
+        }
+
+        /// <summary>
+        /// Fetches a transaction or Null given the SHA256 for the record
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>the matching TransactionDto or null</returns>
+        public TransactionDto GetTransaction(Guid id)
+        {
+            var entity = Transaction.SingleOrDefault(x => x.Id == id);
+            if (entity == null) return null;
+            return MapTransactionToTransactionDto(entity);
         }
 
         private TransactionDto MapTransactionToTransactionDto(Transaction x)

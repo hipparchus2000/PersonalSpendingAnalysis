@@ -12,6 +12,7 @@ namespace IRepositories.Interfaces
         List<CategoryDto> GetCategories();
         List<string> GetCategoryNames();
         TransactionDto GetTransaction(string sha);
+        TransactionDto GetTransaction(Guid id);
         void AddTransaction(TransactionDto dto);
         List<TransactionDto> GetTransactions(global::Enums.orderBy currentOrder);
         List<BudgetDto> GetBudgets();
