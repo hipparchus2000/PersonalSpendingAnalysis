@@ -98,13 +98,13 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox comboBoxCategory;
-        private System.Windows.Forms.BindingSource categoryBindingSource;
-        private System.Windows.Forms.TextBox textBoxSearchString;
-        private System.Windows.Forms.Button buttonAddSearchStringToCategory;
-        private System.Windows.Forms.Button buttonCancel;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
+        //private System.Windows.Forms.ComboBox comboBoxCategory;
+        //private System.Windows.Forms.BindingSource categoryBindingSource;
+        //private System.Windows.Forms.TextBox textBoxSearchString;
+        //private System.Windows.Forms.Button buttonAddSearchStringToCategory;
+        //private System.Windows.Forms.Button buttonCancel;
+        //private System.Windows.Forms.Label label1;
+        //private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonSetCategory;
