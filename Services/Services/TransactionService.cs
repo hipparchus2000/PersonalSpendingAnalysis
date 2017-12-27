@@ -58,7 +58,7 @@ namespace Services.Services
                 transactionDate = dto.transactionDate,
                 Category = dto.Category == null ? null : new CategoryModel
                 {
-                    Id = dto.Category.Id, Name = dto.Category.Name, SearchString = dto.Category.Name
+                    Id = dto.Category.Id, Name = dto.Category.Name, SearchString = dto.Category.SearchString
                 }
             };
         }

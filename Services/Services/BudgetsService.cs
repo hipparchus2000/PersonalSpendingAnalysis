@@ -25,7 +25,6 @@ namespace PersonalSpendingAnalysis.Services
 
         public void CreateOrUpdateBudgets(List<BudgetModel> listOfBudgets)
         {
-            //todo move this to repo
             repo.CreateOrUpdateBudgets(listOfBudgets.Select(x=>new BudgetDto
             {
                 Amount = x.Amount,
