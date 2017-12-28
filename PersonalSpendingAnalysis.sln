@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeRepo", "FakeRepo\FakeRe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceUnitTestsUsingMoq", "ServiceUnitTestsUsingMoq\ServiceUnitTestsUsingMoq.csproj", "{F577D6D1-AA08-4F5E-ACD2-0E6419CA6A61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryUnitTests", "RepositoryUnitTest\RepositoryUnitTests.csproj", "{B98FB829-7721-4296-8A5E-2E9D68BF16E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{F577D6D1-AA08-4F5E-ACD2-0E6419CA6A61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F577D6D1-AA08-4F5E-ACD2-0E6419CA6A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F577D6D1-AA08-4F5E-ACD2-0E6419CA6A61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B98FB829-7721-4296-8A5E-2E9D68BF16E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B98FB829-7721-4296-8A5E-2E9D68BF16E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B98FB829-7721-4296-8A5E-2E9D68BF16E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B98FB829-7721-4296-8A5E-2E9D68BF16E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{90091771-6116-475B-9CE1-D92DD4D5A4D0} = {8D7FB067-17D3-4AC0-9E94-9878AF55FE7A}
 		{1ACF3095-8352-41B1-AAB0-7FBDAD867353} = {DCE6FFD3-A808-463D-9E93-D7B78B3680DA}
 		{F577D6D1-AA08-4F5E-ACD2-0E6419CA6A61} = {C325B609-08B1-4D8A-A4C4-6F9FB72E3DCE}
+		{B98FB829-7721-4296-8A5E-2E9D68BF16E1} = {DCE6FFD3-A808-463D-9E93-D7B78B3680DA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A3F83A69-4670-420D-B77D-E09E78F543F7}

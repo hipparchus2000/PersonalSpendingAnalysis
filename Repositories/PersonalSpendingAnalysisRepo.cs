@@ -9,23 +9,18 @@ using System;
 
 namespace PersonalSpendingAnalysis.Repo
 {
-    public class PersonalSpendingAnalysisRepo : DbContext , IPersonalSpendingAnalysisRepo
+    public class PersonalSpendingAnalysisRepo : IPersonalSpendingAnalysisRepo
     {
+        private PSAContext context;
 
-        public PersonalSpendingAnalysisRepo() : base("PersonalSpendingAnalysisRepo")
+        public PersonalSpendingAnalysisRepo(PSAContext _context) 
         {
+            context = _context;
         }
-
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<Budget> Budgets { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<CategorySearchString> CategorySearchStrings { get; set; }
-        public DbSet<Import> Imports { get; set; }
-        public DbSet<Transaction> Transaction { get; set; }
 
         public void AddTransaction(TransactionDto dto)
         {
-            Transaction.Add(new Transaction
+            context.Transaction.Add(new Transaction
             {
                 AccountId = null,
                 amount = dto.amount,
@@ -37,12 +32,12 @@ namespace PersonalSpendingAnalysis.Repo
                 Notes = dto.Notes,
                 transactionDate = dto.transactionDate
             });
-            SaveChanges();
+            context.SaveChanges();
         }
 
         public List<CategoryDto> GetCategories()
         {
-            return Categories.Select(x=>new CategoryDto {
+            return context.Categories.Select(x=>new CategoryDto {
                 Id = x.Id,
                 Name = x.Name,
                 SearchString = x.SearchString
@@ -51,13 +46,13 @@ namespace PersonalSpendingAnalysis.Repo
 
         public List<string> GetCategoryNames()
         {
-            var categoryList = Categories.Select(x => x.Name).OrderBy(x => x).ToList();
+            var categoryList = context.Categories.Select(x => x.Name).OrderBy(x => x).ToList();
             return categoryList;
         }
 
         public List<CategoryTotalDto> GetCategoryTotals(DateTime startDate, DateTime endDate, bool showDebitsOnly)
         {
-            var transactions = Transaction.Include("Category")
+            var transactions = context.Transaction.Include("Category")
                 .Where(x => (x.transactionDate > startDate)
                 && (x.transactionDate < endDate)
                 );
@@ -77,7 +72,7 @@ namespace PersonalSpendingAnalysis.Repo
 
         public List<CategoryTotalDto> GetCategoryTotalsForAllTime()
         {
-            var transactions = Transaction.Include("Category");
+            var transactions = context.Transaction.Include("Category");
             var categories = transactions
                 .GroupBy(x => new { CategoryName = x.Category.Name })
                 .Select(x => new CategoryTotalDto
@@ -91,8 +86,8 @@ namespace PersonalSpendingAnalysis.Repo
 
         public double GetNumberOfDaysOfRecordsInSystem()
         {
-            var earliestDate = Transaction.Select(x => x.transactionDate).Min(x => x);
-            var latestDate = Transaction.Select(x => x.transactionDate).Max(x => x);
+            var earliestDate = context.Transaction.Select(x => x.transactionDate).Min(x => x);
+            var latestDate = context.Transaction.Select(x => x.transactionDate).Max(x => x);
             var datespan = latestDate.Subtract(earliestDate);
             return datespan.TotalDays;
         }
@@ -104,7 +99,7 @@ namespace PersonalSpendingAnalysis.Repo
         /// <returns>the matching TransactionDto or null</returns>
         public TransactionDto GetTransaction(string sha)
         {
-            var existingRowForThisSHA256 = Transaction.SingleOrDefault(x => x.SHA256 == sha);
+            var existingRowForThisSHA256 = context.Transaction.SingleOrDefault(x => x.SHA256 == sha);
             if (existingRowForThisSHA256 == null) return null;
             return MapTransactionToTransactionDto(existingRowForThisSHA256);
         }
@@ -116,7 +111,7 @@ namespace PersonalSpendingAnalysis.Repo
         /// <returns>the matching TransactionDto or null</returns>
         public TransactionDto GetTransaction(Guid id)
         {
-            var entity = Transaction.SingleOrDefault(x => x.Id == id);
+            var entity = context.Transaction.SingleOrDefault(x => x.Id == id);
             if (entity == null) return null;
             return MapTransactionToTransactionDto(entity);
         }
@@ -143,7 +138,7 @@ namespace PersonalSpendingAnalysis.Repo
 
         public List<TransactionDto> GetTransactions()
         {
-            return Transaction.Select(x=> new TransactionDto
+            return context.Transaction.Select(x=> new TransactionDto
             {
                 AccountId = x.AccountId,
                 amount = x.amount,
@@ -170,22 +165,22 @@ namespace PersonalSpendingAnalysis.Repo
             switch (currentOrder)
             {
                 case orderBy.transactionDateDescending:
-                    datarows = Transaction.Include("Category").OrderByDescending(x => x.transactionDate).ToList();
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.transactionDate).ToList();
                     break;
                 case orderBy.transactionDateAscending:
-                    datarows = Transaction.Include("Category").OrderBy(x => x.transactionDate).ToList();
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.transactionDate).ToList();
                     break;
                 case orderBy.amountAscending:
-                    datarows = Transaction.Include("Category").OrderBy(x => x.amount).ToList();
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.amount).ToList();
                     break;
                 case orderBy.amountDescending:
-                    datarows = Transaction.Include("Category").OrderByDescending(x => x.amount).ToList();
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.amount).ToList();
                     break;
                 case orderBy.categoryAscending:
-                    datarows = Transaction.Include("Category").OrderBy(x => x.Category == null ? "" : x.Category.Name).ToList();
+                    datarows = context.Transaction.Include("Category").OrderBy(x => x.Category == null ? "" : x.Category.Name).ToList();
                     break;
                 case orderBy.categoryDescending:
-                    datarows = Transaction.Include("Category").OrderByDescending(x => x.Category == null ? "" : x.Category.Name).ToList();
+                    datarows = context.Transaction.Include("Category").OrderByDescending(x => x.Category == null ? "" : x.Category.Name).ToList();
                     break;
             }
 
@@ -217,12 +212,12 @@ namespace PersonalSpendingAnalysis.Repo
             //do the categories first to avoid foreign key issues
             foreach (var category in import.categories)
             {
-                if (Categories.SingleOrDefault(x => x.Id == category.Id) != null)
+                if (context.Categories.SingleOrDefault(x => x.Id == category.Id) != null)
                 {
                     //this method aggregates search strings - todo perhaps give user the choice to aggregate or
                     //replace or keep search strings.
                     result.numberOfDuplicateCategories++;
-                    var oldCategory = Categories.Single(x => x.Id == category.Id);
+                    var oldCategory = context.Categories.Single(x => x.Id == category.Id);
                     var searchStrings = oldCategory.SearchString.Split(',').ToList();
                     searchStrings.AddRange(category.SearchString.Split(','));
                     var uniqueSearchStrings = searchStrings.Distinct();
@@ -230,22 +225,22 @@ namespace PersonalSpendingAnalysis.Repo
                 }
                 else
                 {
-                    Categories.Add(new Category {
+                    context.Categories.Add(new Category {
                         Id = category.Id,
                         Name = category.Name,
                         SearchString = category.Name
                     });
-                    SaveChanges();
+                    context.SaveChanges();
                     result.numberOfNewCategories++;
                 }
             }
 
             foreach (var transaction in import.transactions)
             {
-                if (Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
+                if (context.Transaction.SingleOrDefault(x => x.SHA256 == transaction.SHA256) == null)
                 {
                     //import the transaction
-                    Transaction.Add(new Transaction {
+                    context.Transaction.Add(new Transaction {
                         AccountId = transaction.AccountId,
                         amount = transaction.amount,
                         Category = null, //avoid making duplicate category
@@ -257,7 +252,7 @@ namespace PersonalSpendingAnalysis.Repo
                         SubCategory = transaction.SubCategory,
                         transactionDate = transaction.transactionDate
                     });
-                    SaveChanges();
+                    context.SaveChanges();
                     result.numberOfNewTransactions++;
                 }
                 else
@@ -272,7 +267,7 @@ namespace PersonalSpendingAnalysis.Repo
 
         public List<BudgetDto> GetBudgets()
         {
-            var budgetList = Budgets.Select(x => new BudgetDto { CategoryName = x.Category.Name, Amount = x.amount }).OrderBy(x=>x.CategoryName).ToList();
+            var budgetList = context.Budgets.Select(x => new BudgetDto { CategoryName = x.Category.Name, Amount = x.amount }).OrderBy(x=>x.CategoryName).ToList();
             return budgetList;
         }
 
@@ -280,30 +275,30 @@ namespace PersonalSpendingAnalysis.Repo
         {
             foreach (var budget in listOfBudgets)
             {
-                var existingBudget = Budgets.Include("Category").FirstOrDefault(x => x.Category.Name == budget.CategoryName);
+                var existingBudget = context.Budgets.Include("Category").FirstOrDefault(x => x.Category.Name == budget.CategoryName);
                 if (existingBudget == null)
                 {
-                    Category category = Categories.First(x => x.Name == budget.CategoryName);
+                    Category category = context.Categories.First(x => x.Name == budget.CategoryName);
                     var newBudget = new Budget
                     {
                         Category = category,
                         CategoryId = category.Id,
                         amount = budget.Amount
                     };
-                    Budgets.Add(newBudget);
-                    SaveChanges();
+                    context.Budgets.Add(newBudget);
+                    context.SaveChanges();
                 }
                 else
                 {
                     existingBudget.amount = budget.Amount;
-                    SaveChanges();
+                    context.SaveChanges();
                 }
             }
         }
 
         public TransactionsWithCategoriesForChartsDto GetTransactionsWithCategoriesForCharts(DateTime start, DateTime end)
         {
-            var transactions = Transaction.Include("Category")
+            var transactions = context.Transaction.Include("Category")
                 .Where(x => (x.transactionDate > start )    
                 && (x.transactionDate < end )
                 );
@@ -316,7 +311,7 @@ namespace PersonalSpendingAnalysis.Repo
                 }).OrderByDescending(x => x.Amount)
                     .ToList();
             var result = new TransactionsWithCategoriesForChartsDto();
-            result.Transactions = Transaction.Include(x=>x.Category).Select(x=> new TransactionDto
+            result.Transactions = context.Transaction.Include(x=>x.Category).Select(x=> new TransactionDto
             {
                 AccountId = x.AccountId,
                 amount = x.amount,
@@ -333,7 +328,7 @@ namespace PersonalSpendingAnalysis.Repo
                 SubCategory = x.SubCategory,
                 transactionDate = x.transactionDate
             }).ToList();
-            result.Categories = Categories.Select(x=>new CategoryDto
+            result.Categories = context.Categories.Select(x=>new CategoryDto
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -350,43 +345,43 @@ namespace PersonalSpendingAnalysis.Repo
 
         public DateTime GetEarliestTransactionDate()
         {
-            return Transaction.Min(x => x.transactionDate);
+            return context.Transaction.Min(x => x.transactionDate);
         }
 
         public void AddNewCategory(CategoryDto dto)
         {
-            Categories.Add(new Category {
+            context.Categories.Add(new Category {
                 Id = dto.Id, Name = dto.Name, SearchString = dto.SearchString
             });
         }
 
         public void RemoveCategory(CategoryDto dto)
         {
-            foreach (var transaction in Transaction.Where(x => x.CategoryId == dto.Id))
+            foreach (var transaction in context.Transaction.Where(x => x.CategoryId == dto.Id))
             {
                 transaction.Category = null;
             }
-            SaveChanges();
+            context.SaveChanges();
 
-            var category = Categories.Single(x=>x.Id == dto.Id);
-            Categories.Remove(category);
-            SaveChanges();
+            var category = context.Categories.Single(x=>x.Id == dto.Id);
+            context.Categories.Remove(category);
+            context.SaveChanges();
         }
 
         public void UpdateCategorySearchString(Guid id, string text)
         {
-            var category = Categories.Single(x => x.Id == id);
+            var category = context.Categories.Single(x => x.Id == id);
             category.SearchString += "," + text;
-            SaveChanges();
+            context.SaveChanges();
         }
 
         public void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false)
         {
-            var transaction = Transaction.Single(x => x.Id == id);
+            var transaction = context.Transaction.Single(x => x.Id == id);
             transaction.CategoryId = categoryId;
             transaction.SubCategory = subCategory;
             transaction.ManualCategory = manuallySet;
-            SaveChanges();
+            context.SaveChanges();
         }
 
         public void ClearFakeRepo()

@@ -42,7 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IBudgetRepo.cs" />
+    <Compile Include="Interfaces\ICategoryRepo.cs" />
     <Compile Include="Interfaces\IPersonalSpendingAnalysisRepo.cs" />
+    <Compile Include="Interfaces\ITransactionRepo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

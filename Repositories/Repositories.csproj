@@ -53,6 +53,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contexts\FakeDbSet.cs" />
+    <Compile Include="Contexts\IPSAContext.cs" />
+    <Compile Include="Contexts\PSAInMemoryContext.cs" />
+    <Compile Include="Contexts\PSAContext.cs" />
     <Compile Include="Entities\Account.cs" />
     <Compile Include="Entities\Budget.cs" />
     <Compile Include="Entities\Category.cs" />
@@ -66,6 +70,9 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="PersonalSpendingAnalysisRepo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\CategoryRepo.cs" />
+    <Compile Include="Repositories\TransactionRepo.cs" />
+    <Compile Include="Repositories\BudgetRepo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201707212019251_FirstMigration.resx">
@@ -90,5 +97,6 @@
       <Name>IRepositories</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

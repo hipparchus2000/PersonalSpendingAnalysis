@@ -31,7 +31,8 @@ namespace PersonalSpendingAnalysis
             var categoryService = container.Resolve<CategoryService>();
             var transactionService = container.Resolve<TransactionService>();
             var reportService = container.Resolve<ReportService>();
-            
+            var psaContext = container.Resolve<PSAContext>();
+
             Application.Run(new PersonalSpendingAnalysis(importsAndExportsService, budgetsService, queryService,categoryService,transactionService, reportService));
         }
 
