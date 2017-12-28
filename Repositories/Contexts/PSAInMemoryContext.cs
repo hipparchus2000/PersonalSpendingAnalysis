@@ -10,12 +10,11 @@ using Repositories.Contexts;
 
 namespace PersonalSpendingAnalysis.Repo
 {
-    public class PSAInMemoryContext : DbContext, IPSAContext
+    public class PSAInMemoryContext : IPSAContext
     {
 
-        public PSAInMemoryContext() : base("PersonalSpendingAnalysisRepo")
+        public PSAInMemoryContext() 
         {
-            this.Database.CommandTimeout = 180;
             Accounts = new FakeDbSet<Account>();
             Budgets = new FakeDbSet<Budget>();
             Categories = new FakeDbSet<Category>();
