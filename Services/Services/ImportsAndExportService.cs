@@ -129,7 +129,7 @@ namespace PersonalSpendingAnalysis.Services
         public string GetExportableText()
         {
             var exportable = new ExportableModel();
-            exportable.transactions = repo.GetTransactions().Select(x=> new TransactionModel
+            exportable.transactions = repo.GetTransactions(new DateTime(2000,01,01),DateTime.UtcNow).Select(x=> new TransactionModel
             {
                 AccountId = x.AccountId,
                 amount = x.amount,

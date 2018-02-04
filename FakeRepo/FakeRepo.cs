@@ -128,9 +128,9 @@ namespace Repositories
             return fakeTransactions.SingleOrDefault(x => x.Id == id);
         }
 
-        public List<TransactionDto> GetTransactions()
+        public List<TransactionDto> GetTransactions(DateTime startDate, DateTime endDate)
         {
-            return fakeTransactions;
+            return fakeTransactions.Where(x=>x.transactionDate>=startDate && x.transactionDate<=endDate).ToList();
         }
 
         public List<TransactionDto> GetTransactions(orderBy currentOrder)
@@ -283,6 +283,19 @@ namespace Repositories
                 Id = id,
                 Name = category.Name,
                 SearchString = category.SearchString + "," + text
+            };
+            fakeCategories.Remove(category);
+            fakeCategories.Add(newCategory);
+        }
+
+        public void UpdateCategory(Guid id, string name, string searchString)
+        {
+            var category = fakeCategories.Single(x => x.Id == id);
+            var newCategory = new CategoryDto
+            {
+                Id = id,
+                Name = name,
+                SearchString = searchString
             };
             fakeCategories.Remove(category);
             fakeCategories.Add(newCategory);

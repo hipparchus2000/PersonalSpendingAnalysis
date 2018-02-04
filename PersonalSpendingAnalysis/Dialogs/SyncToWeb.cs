@@ -116,7 +116,7 @@ namespace PersonalSpendingAnalysis.Dialogs
                             SearchString = x.SearchString,
                             userId = loginResult.userId
                         }).ToList();
-                        var localTransactions = transactionsService.GetTransactions().Select(x => new TransactionModel
+                        var localTransactions = transactionsService.GetTransactions(new DateTime(2000,01,01),DateTime.UtcNow).Select(x => new TransactionModel
                         {
                             Id = x.Id,
                             amount = x.amount,

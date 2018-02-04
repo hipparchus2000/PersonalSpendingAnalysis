@@ -49,6 +49,11 @@ namespace Services.Services
             });
         }
 
+        public void UpdateCategory(Guid id, string name, string searchString)
+        {
+            repo.UpdateCategory(id, name, searchString);
+        }
+
         public void UpdateCategorySearchString(Guid id, string text)
         {
             repo.UpdateCategorySearchString(id, text);

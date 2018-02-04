@@ -44,28 +44,35 @@ namespace PersonalSpendingAnalysis.Dialogs
                 String name = (String)row.Cells[1].Value;
                 String searchString = (String)row.Cells[2].Value;
 
-                categoriesFromDialog.Add(new CategoryModel
+                if (name != null && searchString != null)
                 {
-                    Id = id,
-                    Name = name,
-                    SearchString = searchString
-                });
+                    var searchStrings = searchString.Split(',');
+                    searchString = String.Join(",", searchStrings.OrderBy(x => x).Distinct().ToArray());
+                    categoriesFromDialog.Add(new CategoryModel
+                    {
+                        Id = id,
+                        Name = name,
+                        SearchString = searchString
+                    });
+                }
+                
             }
 
             //todo move this business logic into service so it is more testable
             foreach (var category in categoriesFromDialog.ToArray())
             {
-                if (originalCategories.Any(x => x.Id == category.Id && x.Name == category.Name && x.SearchString == category.SearchString))
+                if (originalCategories.SingleOrDefault(x => x.Id == category.Id && x.Name == category.Name && x.SearchString == category.SearchString)!=null)
                 {
                     unchangedCategories.Add(category);
                 }
-                else if (originalCategories.Any(x => x.Id == category.Id && (x.Name != category.Name || x.SearchString != category.SearchString)))
+                else if (originalCategories.SingleOrDefault(x => x.Id == category.Id ) !=null )
                 {
                     //update the category
                     var existingRowForThisId = originalCategories.SingleOrDefault(x => x.Id == category.Id);
                     existingRowForThisId.Name = category.Name;
                     existingRowForThisId.SearchString = category.SearchString;
                     updatedCategories.Add(category);
+                    categoryService.UpdateCategory(category.Id, category.Name, category.SearchString);
                 }
                 else {
                     //add new category

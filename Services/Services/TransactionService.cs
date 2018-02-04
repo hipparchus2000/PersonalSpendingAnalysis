@@ -63,9 +63,13 @@ namespace Services.Services
             };
         }
 
-        public List<TransactionModel> GetTransactions()
+        public List<TransactionModel> GetTransactions(DateTime? inStartDate,DateTime? inEndDate)
         {
-            var transactions = repo.GetTransactions().Select(x=>new TransactionModel {
+            DateTime endDate = inEndDate ?? DateTime.UtcNow;
+            DateTime startDate = inStartDate ?? GetEarliestTransactionDate();
+
+            var transactions = repo.GetTransactions(startDate, endDate)
+                .Select(x=>new TransactionModel {
                 AccountId = x.AccountId,
                 amount = x.amount,
                 Category = x.Category == null ? null : new CategoryModel

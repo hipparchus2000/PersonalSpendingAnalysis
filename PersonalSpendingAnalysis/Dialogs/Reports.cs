@@ -30,67 +30,123 @@ namespace PersonalSpendingAnalysis.Dialogs
             public Decimal? value { get; set; }
         }
 
+        public class displayModel
+        {
+            public displayModel ()
+            {
+                categories = new List<displayCategory>();
+            }
+
+            public List<displayCategory> categories { get; set; }
+        }
+
+        public class displayCategory
+        {
+            public displayCategory ()
+            {
+                yearResults = new List<displayCategoryYearResults>();
+            }
+            public string name { get; set; }
+            public decimal amount { get; set; }
+            public List<displayCategoryYearResults> yearResults { get; set; }
+        }
+
+        public class displayCategoryYearResults
+        {
+            public displayCategoryYearResults()
+            {
+                subcategories = new List<displaySubcategory>();
+            }
+            public string name { get; set; }
+            public decimal amount { get; set; }
+            public List<displaySubcategory> subcategories { get; set; }
+        }
+
+        public class displaySubcategory
+        {
+            public displaySubcategory () {
+                transactions = new List<displayTransaction>();
+                }
+            public string name { get; set; }
+            public decimal amount { get; set; }
+            public List<displayTransaction> transactions { get; set; }
+        }
+
+        public class displayTransaction
+        {
+            public string text { get; set; }
+            public string amount { get; set; }
+        }
+
+
         private void runReport()
         {
             treeView.Nodes.Clear();
-
+            
             var yearList = new List<float>();
             for (var loopYear = this.startDate.Value.Year; loopYear <= this.endDate.Value.Year; loopYear++)
                 yearList.Add(loopYear);
 
+            UpdateProgressBar(2);
             var model = queryService.GetTransactionsWithCategoriesForCharts(this.startDate.Value,this.endDate.Value);
+            UpdateProgressBar(50);
             
-            var count = 0;
-
-            foreach (var category in model.CategoryTotals)
+            var displayModel = new displayModel();
+            displayModel.categories = model.CategoryTotals.Select(x => new displayCategory { name = x.CategoryName, amount = x.Amount }).ToList();
+            foreach (var category in displayModel.categories)
             {
-                count++;
-                decimal percent = (decimal)count / (decimal)model.Transactions.Count();
-                UpdateProgressBar(percent);
-
-                var node = new TreeNode(category.CategoryName + " = " + category.Amount);
-
-                //todo make the structure returned from the service be a tree of the right format
-                foreach (var year in yearList)
-                {
-                    var value = model.Transactions.Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year).Sum(x => (Decimal?)x.amount);
-                    decimal? permonth = (value / 12.0m);
-                    var yearNode = new TreeNode(year + " = " + value + (permonth==null?"":"    (per month = " + ((decimal)permonth).ToString("#.##") + " ) ") );
-
-                    var searchStrings = model.Categories.First(x => x.Name == category.CategoryName).SearchString + ",manually assigned";
-                    
-                    var subCategories = new List<SortableTreeNode>();
-
-                    foreach (var searchString in searchStrings.Split(',').ToList())
+                    category.yearResults = model.Transactions.Where(x => x.Category.Name == category.name  ).
+                        Select(y=> new { category = y.Category.Name, amount = y.amount, year = y.transactionDate.Year  } )
+                        .GroupBy(q => new { year = q.year, category = q.category })
+                        .Select(z=>new displayCategoryYearResults{ name = z.Key.year.ToString(), amount=z.Sum(t=>t.amount) })
+                        .ToList();
+                    foreach(var yearResult in category.yearResults)
                     {
-
-                        var subCatValue = model.Transactions
-                            .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString)
-                            .Sum(x => (Decimal?)x.amount);
-
-                        var subCategoryNode = new TreeNode(searchString + " " + subCatValue);
-                        
-                        var transactionsInSubcategory = model.Transactions
-                            .Where(x => x.Category.Name == category.CategoryName && x.transactionDate.Year == year && x.SubCategory == searchString).ToArray();
-
-                        foreach (var transaction in transactionsInSubcategory)
+                        yearResult.subcategories = model.Transactions
+                            .Where(x => x.Category.Name == category.name && x.transactionDate.Year == Convert.ToInt32(yearResult.name))
+                            .GroupBy(q => new { subcatname = q.SubCategory })
+                            .Select(z=>new displaySubcategory { name = z.Key.subcatname , amount = z.Sum(t=>t.amount)})
+                            .ToList();
+                        foreach (var subcat in yearResult.subcategories)
                         {
-                            var transactionString = transaction.transactionDate.ToShortDateString() + " " + transaction.Notes + " " + transaction.amount;
-                            var transactionNode = new TreeNode(transactionString);
-                            subCategoryNode.Nodes.Add(transactionNode);
+                            subcat.transactions = model.Transactions
+                            .Where(x => x.Category.Name == category.name && x.transactionDate.Year == Convert.ToInt32(yearResult.name) && x.SubCategory ==subcat.name)
+                            .Select(z => new displayTransaction { text = z.transactionDate.ToShortDateString()+" "+z.Notes, amount = z.amount.ToString() })
+                            .ToList();
                         }
-                        
-                        subCategories.Add(new SortableTreeNode { treeNode = subCategoryNode, value = subCatValue });
-
                     }
+            
+            }
 
-                    foreach (var subCategory in subCategories.OrderBy(x => x.value))
+            foreach (var category in displayModel.categories.OrderBy(x=>x.name))
+            {
+                UpdateProgressBar(100.0m);
+
+                var node = new TreeNode(category.name + " = " + category.amount);
+
+                foreach (var year in category.yearResults.OrderByDescending(x => x.name))
+                {
+                    var yearNode = new TreeNode(year.name+" "+year.amount);
+                    var subCategories = new List<TreeNode>();
+
+                    foreach (var subcat in year.subcategories.OrderBy(x => x.amount))
                     {
-                        if (subCategory.treeNode.Nodes.Count > 0)
-                            yearNode.Nodes.Add(subCategory.treeNode);
+                        var subCategoryNode = new TreeNode(subcat.name+" "+subcat.amount);
+                        foreach (var transaction in subcat.transactions)
+                        {
+                            var transactionNode = new TreeNode(transaction.text+" "+transaction.amount);
+                            subCategoryNode.Nodes.Add(transactionNode);
+                        }                        
+                        subCategories.Add(subCategoryNode);
+
                     }
 
-
+                    foreach (var subCategory in subCategories)
+                    {
+                        if (subCategory.Nodes.Count > 0)
+                            yearNode.Nodes.Add(subCategory);
+                    }
+                    
                     node.Nodes.Add(yearNode);
                 }
 
@@ -136,8 +192,7 @@ namespace PersonalSpendingAnalysis.Dialogs
             DialogResult result = exportPdfDlg.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                var includeTransactions = this.includeTransactions.Checked;
-                reportService.createReport(treeView.Nodes, exportPdfDlg.FileName, includeTransactions);
+                reportService.createReport(treeView.Nodes, exportPdfDlg.FileName, true);
                 Process.Start(exportPdfDlg.FileName);
 
             }

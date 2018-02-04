@@ -36,7 +36,6 @@
             this.treeView = new System.Windows.Forms.TreeView();
             this.buttonExportPdf = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.includeTransactions = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // startDate
@@ -108,22 +107,11 @@
             this.progressBar1.Size = new System.Drawing.Size(240, 23);
             this.progressBar1.TabIndex = 10;
             // 
-            // includeTransactions
-            // 
-            this.includeTransactions.AutoSize = true;
-            this.includeTransactions.Location = new System.Drawing.Point(662, 30);
-            this.includeTransactions.Name = "includeTransactions";
-            this.includeTransactions.Size = new System.Drawing.Size(125, 17);
-            this.includeTransactions.TabIndex = 11;
-            this.includeTransactions.Text = "Include Transactions";
-            this.includeTransactions.UseVisualStyleBackColor = true;
-            // 
             // Reports
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 591);
-            this.Controls.Add(this.includeTransactions);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.buttonExportPdf);
             this.Controls.Add(this.treeView);
@@ -149,6 +137,5 @@
         private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Button buttonExportPdf;
         private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.CheckBox includeTransactions;
     }
 }

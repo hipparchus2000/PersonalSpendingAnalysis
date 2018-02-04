@@ -94,7 +94,7 @@ namespace PersonalSpendingAnalysis
         private void buttonAutoCategorize_Click(object sender, EventArgs e)
         {
             var categories = categoryService.GetCategories();
-            var datarows = transactionService.GetTransactions();
+            var datarows = transactionService.GetTransactions(new DateTime(2000,01,01),DateTime.UtcNow);
             var totalCount = datarows.Count();
 
             Thread backgroundThread = new Thread(

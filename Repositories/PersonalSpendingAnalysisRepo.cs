@@ -136,9 +136,13 @@ namespace PersonalSpendingAnalysis.Repo
             };
         }
 
-        public List<TransactionDto> GetTransactions()
+        public List<TransactionDto> GetTransactions(DateTime startDate, DateTime endDate)
         {
-            return context.Transaction.Select(x=> new TransactionDto
+            return context.Transaction
+                .Where(x => (x.transactionDate > startDate)
+                && (x.transactionDate < endDate))
+
+                .Select(x=> new TransactionDto
             {
                 AccountId = x.AccountId,
                 amount = x.amount,
@@ -303,6 +307,8 @@ namespace PersonalSpendingAnalysis.Repo
                 && (x.transactionDate < end )
                 );
             var categories = transactions
+                .Where(x => (x.transactionDate > start)
+                && (x.transactionDate < end))
                 .GroupBy(x => new { CategoryName = x.Category.Name })
                 .Select(x => new
                 {
@@ -311,7 +317,7 @@ namespace PersonalSpendingAnalysis.Repo
                 }).OrderByDescending(x => x.Amount)
                     .ToList();
             var result = new TransactionsWithCategoriesForChartsDto();
-            result.Transactions = context.Transaction.Include(x=>x.Category).Select(x=> new TransactionDto
+            result.Transactions = transactions.Select(x=> new TransactionDto
             {
                 AccountId = x.AccountId,
                 amount = x.amount,
@@ -374,6 +380,15 @@ namespace PersonalSpendingAnalysis.Repo
             category.SearchString += "," + text;
             context.SaveChanges();
         }
+
+        public void UpdateCategory(Guid id, string name, string searchString)
+        {
+            var category = context.Categories.Single(x => x.Id == id);
+            category.Name = name;
+            category.SearchString = searchString;
+            context.SaveChanges();
+        }
+
 
         public void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false)
         {

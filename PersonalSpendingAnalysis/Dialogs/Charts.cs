@@ -93,11 +93,8 @@ namespace PersonalSpendingAnalysis.Dialogs
 
         private void drawMonthByCategoryChart()
         {
-            var transactions = transactionService.GetTransactions()
-                .Where(x => (x.transactionDate > this.startDate.Value)
-                && (x.transactionDate < this.endDate.Value)
-                && (this.showDebitsOnly.Checked && x.amount < 0)
-                );
+            var transactions = transactionService.GetTransactions(this.startDate.Value, this.endDate.Value)
+                .Where (x=>this.showDebitsOnly.Checked && x.amount < 0);
             var categories = transactions
                 .GroupBy(x => new { Year = x.transactionDate.Year, Month = x.transactionDate.Month, CategoryName = x.Category.Name })
                 .Select(x => new {
@@ -159,10 +156,8 @@ namespace PersonalSpendingAnalysis.Dialogs
         private void drawYearByCategoryChart()
         {
             //todo move to service / repo
-            var transactions = transactionService.GetTransactions()
-                .Where(x => (x.transactionDate > this.startDate.Value)
-                && (x.transactionDate < this.endDate.Value)
-                && (this.showDebitsOnly.Checked && x.amount < 0)
+            var transactions = transactionService.GetTransactions(this.startDate.Value, this.endDate.Value)
+                .Where(x => (this.showDebitsOnly.Checked && x.amount < 0)
                 );
             var categories = transactions
                 .GroupBy(x => new { Year = x.transactionDate.Year, CategoryName = x.Category.Name })
@@ -270,71 +265,75 @@ namespace PersonalSpendingAnalysis.Dialogs
             this.startDate.Value = startDate;
             this.showDebitsOnly.Checked = true;
             style = SeriesChartType.StackedColumn;
-            drawChart();
         }
 
         private void startDate_ValueChanged(object sender, EventArgs e)
         {
-            drawChart();
+            //drawChart();
         }
 
         private void endDate_ValueChanged(object sender, EventArgs e)
         {
-            drawChart();
+            //drawChart();
         }
 
         private void showDebitsOnly_CheckedChanged(object sender, EventArgs e)
         {
-            drawChart();
+            //drawChart();
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             _chartType = chartTypeEnum.monthByCategory;
-            drawChart();
+            //drawChart();
         }
 
         private void chartType2_CheckedChanged(object sender, EventArgs e)
         {
             _chartType = chartTypeEnum.yearByCategory;
-            drawChart();
+            //drawChart();
         }
 
         private void chartType3_CheckedChanged(object sender, EventArgs e)
         {
             _chartType = chartTypeEnum.pieChart;
-            drawChart();
+            //drawChart();
         }
         
         private void radioButtonStackedColumn_CheckedChanged(object sender, EventArgs e)
         {
             style = SeriesChartType.StackedColumn;
-            drawChart();
+            //drawChart();
         }
 
         private void radioButtonStackedArea_CheckedChanged(object sender, EventArgs e)
         {
             style = SeriesChartType.StackedArea;
-            drawChart();
+            //drawChart();
         }
 
         private void buttonBackwards_Click(object sender, EventArgs e)
         {
             this.startDate.Value = this.startDate.Value.AddYears(-1); 
             this.endDate.Value = this.endDate.Value.AddYears(-1);
-            drawChart();
+            //drawChart();
         }
 
         private void buttonForward_Click(object sender, EventArgs e)
         {
             this.startDate.Value = this.startDate.Value.AddYears(+1);
             this.endDate.Value = this.endDate.Value.AddYears(+1);
-            drawChart();
+            //drawChart();
         }
 
         private void chart_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void refreshChart_Click(object sender, EventArgs e)
+        {
+            drawChart();
         }
     }
 }

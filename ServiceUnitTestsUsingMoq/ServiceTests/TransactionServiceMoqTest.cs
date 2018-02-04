@@ -63,13 +63,13 @@ namespace ServiceUnitTestsUsingMoq
             list.Add(transactionA);
             list.Add(transactionB);
             var repo = new Mock<IPersonalSpendingAnalysisRepo>();
-            repo.Setup(x => x.GetTransactions()).Returns(list);
+            repo.Setup(x => x.GetTransactions(new DateTime(2000,01,01),DateTime.UtcNow)).Returns(list);
 
             var service = new TransactionService(repo.Object);
             service.Should().NotBeNull();
 
             //test
-            var result = service.GetTransactions().ToArray();
+            var result = service.GetTransactions(new DateTime(2000, 01, 01), DateTime.UtcNow).ToArray();
 
             //assert
             result.Should().NotBeNull();

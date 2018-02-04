@@ -6,7 +6,7 @@ namespace IServices.Interfaces
 {
     public interface ITransactionService
     {
-        List<TransactionModel> GetTransactions();
+        List<TransactionModel> GetTransactions(DateTime? startdate, DateTime? enddate);
         List<TransactionModel> GetTransactions(global::Enums.orderBy currentOrder);
         DateTime GetEarliestTransactionDate();
         void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false);

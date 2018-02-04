@@ -18,8 +18,10 @@ namespace UnitTests.ServiceTests
         [TestMethod]
         public void TestListAddRemoveUpdate()
         {
+            var startDate = new DateTime(2000,01,01);
+            var endDate = DateTime.UtcNow;
             //check there is nothing in the repo
-            var testArray = transactionService.GetTransactions().ToArray();
+            var testArray = transactionService.GetTransactions(startDate,endDate).ToArray();
             Assert.AreEqual(testArray.Length, 0);
 
             //note by default the fake repo is used
@@ -53,7 +55,7 @@ namespace UnitTests.ServiceTests
             transactionService.AddNewTransaction(transactionB);
 
             //test GetTransactions
-            testArray = transactionService.GetTransactions().ToArray();
+            testArray = transactionService.GetTransactions(new DateTime(2000,01,01),DateTime.UtcNow).ToArray();
             //test that the results are NOT returned in name order
             Assert.AreEqual(testArray[0].Id, transactionA.Id);
             Assert.AreEqual(testArray[0].AccountId, transactionA.AccountId);

@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.startDate = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
@@ -47,6 +47,7 @@
             this.styleBox = new System.Windows.Forms.GroupBox();
             this.buttonBackwards = new System.Windows.Forms.Button();
             this.buttonForward = new System.Windows.Forms.Button();
+            this.refreshChart = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             this.chartType.SuspendLayout();
             this.styleBox.SuspendLayout();
@@ -55,22 +56,22 @@
             // chart
             // 
             this.chart.AccessibleRole = System.Windows.Forms.AccessibleRole.MenuBar;
-            chartArea1.Name = "ChartArea1";
-            this.chart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart.Legends.Add(legend1);
+            chartArea2.Name = "ChartArea1";
+            this.chart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart.Legends.Add(legend2);
             this.chart.Location = new System.Drawing.Point(232, 14);
             this.chart.Name = "chart";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.chart.Series.Add(series2);
             this.chart.Size = new System.Drawing.Size(1024, 565);
             this.chart.TabIndex = 0;
             this.chart.Text = "chart1";
-            title1.Name = "Title";
-            title1.Text = "Personal Spending Analysis";
-            this.chart.Titles.Add(title1);
+            title2.Name = "Title";
+            title2.Text = "Personal Spending Analysis";
+            this.chart.Titles.Add(title2);
             this.chart.Click += new System.EventHandler(this.chart_Click);
             // 
             // startDate
@@ -220,11 +221,22 @@
             this.buttonForward.UseVisualStyleBackColor = true;
             this.buttonForward.Click += new System.EventHandler(this.buttonForward_Click);
             // 
+            // refreshChart
+            // 
+            this.refreshChart.Location = new System.Drawing.Point(37, 253);
+            this.refreshChart.Name = "refreshChart";
+            this.refreshChart.Size = new System.Drawing.Size(128, 23);
+            this.refreshChart.TabIndex = 12;
+            this.refreshChart.Text = "Refresh Chart";
+            this.refreshChart.UseVisualStyleBackColor = true;
+            this.refreshChart.Click += new System.EventHandler(this.refreshChart_Click);
+            // 
             // Charts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 591);
+            this.Controls.Add(this.refreshChart);
             this.Controls.Add(this.buttonForward);
             this.Controls.Add(this.buttonBackwards);
             this.Controls.Add(this.styleBox);
@@ -265,5 +277,6 @@
         private System.Windows.Forms.GroupBox styleBox;
         private System.Windows.Forms.Button buttonBackwards;
         private System.Windows.Forms.Button buttonForward;
+        private System.Windows.Forms.Button refreshChart;
     }
 }

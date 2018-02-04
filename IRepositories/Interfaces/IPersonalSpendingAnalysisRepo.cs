@@ -8,7 +8,7 @@ namespace IRepositories.Interfaces
     public interface IPersonalSpendingAnalysisRepo
     {
         void ClearFakeRepo();
-        List<TransactionDto> GetTransactions();
+        List<TransactionDto> GetTransactions(DateTime startDate, DateTime endDate);
         List<CategoryDto> GetCategories();
         List<string> GetCategoryNames();
         TransactionDto GetTransaction(string sha);
@@ -27,5 +27,6 @@ namespace IRepositories.Interfaces
         void RemoveCategory(CategoryDto categoryDto);
         void UpdateCategorySearchString(Guid id, string text);
         void UpdateTransactionCategory(Guid id, Guid? categoryId, string subCategory, bool manuallySet = false);
+        void UpdateCategory(Guid id, string name, string searchString);
     }
 }

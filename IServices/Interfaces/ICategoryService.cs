@@ -11,5 +11,6 @@ namespace IServices.Interfaces
         CategoryModel AddNewCategory(CategoryModel categoryModel);
         void RemoveCategory(CategoryModel deletedCategory);
         void UpdateCategorySearchString(Guid value, string text);
+        void UpdateCategory(Guid id, string name, string searchString);
     }
 }
